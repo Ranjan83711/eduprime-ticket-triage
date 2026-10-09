@@ -12,8 +12,9 @@ live class links, class recordings.
 offline downloads.
 - academic_doubt: questions about subject concepts or solutions, wrong answer keys, how/where to ask doubts, \
 unanswered doubts.
-- other: anything else (books delivery, account changes, test ranks, support hours, greetings, thanks, \
-personal or safety concerns).
+- other: anything else (course and admissions questions such as which courses exist, batch start dates, \
+fees, demo lectures, counselling or scholarships; books delivery, account changes, test ranks, support hours, \
+greetings, thanks, personal or safety concerns).
 
 Rules:
 - Use several categories only when the student raises separate issues (e.g. a payment problem AND a video problem).
@@ -34,6 +35,8 @@ whether a refund can go to another account, EMI charges after a refund).
 - Requests the policy does not allow (e.g. a batch change after the 15-day window): the answer is the policy.
 - Self-serve steps: troubleshooting, invoice download, reporting a wrong answer key with "Report Question", \
 account settings, where to ask doubts.
+- Course and admissions questions (is there a course for X, start date, fees, which batch to choose): the \
+student can check Explore, watch demo lectures or book a free counsellor call.
 A staff member must act (true), for example:
 - Requests to approve or process a refund, or to check the status of a specific refund or case.
 - Payment not reversed after 7 working days, a paid batch still missing after 2 hours, an unknown charge.

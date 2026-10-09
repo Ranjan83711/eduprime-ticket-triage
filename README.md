@@ -14,23 +14,24 @@ Built for the PW Central AI POD assignment, problem statement 6.
 
 ---
 
-## Results (60 labelled tickets + 15 held-out)
+## Results (64 labelled tickets + 17 held-out)
 
-| Metric | Main set (60) | Held-out set (15) |
+| Metric | Main set (64) | Held-out set (17) |
 |---|---|---|
-| **Decision accuracy** (auto-reply vs escalate) | **96.7%** | **100%** |
+| **Decision accuracy** (auto-reply vs escalate) | **96.9%** | **94.1%** |
 | **Unsafe auto-replies** (needed a human, got a bot reply) | **0** | **0** |
-| Unnecessary escalations | 2 | 0 |
-| Escalation recall / precision | 100% / 92.6% | 100% / 100% |
-| Category accuracy (primary label) | 96.6% | 86.7%¹ |
-| Category micro-F1 (all labels, multi-issue tickets) | 0.957 | 0.973 |
+| Unnecessary escalations | 2 | 1² |
+| Escalation recall / precision | 100% / 92.6% | 100% / 87.5% |
+| Category accuracy (primary label) | 98.4% | 88.2%¹ |
+| Category micro-F1 (all labels, multi-issue tickets) | 0.952 | 0.950 |
 | Angry-student recall | 100% | 100% |
-| Citations whose quote really appears in the cited KB passage | 86 / 87 (98.9%)² | 100% |
-| Latency per ticket (p50 / p95) | 3.5 s / 4.4 s | |
+| Citations whose quote really appears in the cited KB passage | **88 / 88 (100%)** | 22 / 23² |
+| Latency per ticket (p50 / p95) | 2.9 s / 20 s³ | |
 | Cost per 1,000 tickets (paid-tier prices; $0 on free tier) | **~$1.10** | |
 
-¹ The two held-out "misses" (H05, H11) are multi-issue tickets where the model found the right categories but listed them in a different order. Micro-F1, which ignores order, is 0.973.
-² The one invalid citation (T60) was caught by the verifier and the ticket was escalated, which is the intended behaviour.
+¹ The held-out category "misses" are multi-issue tickets where the model found the right categories but listed them in a different order (micro-F1 ignores order).
+² H17 ("batch for Class 8 CBSE?"): one citation failed verification, so the ticket was escalated instead of sent. That's the verifier doing its job: the only cost is a human reading a ticket the bot could have answered.
+³ p95 includes free-tier rate-limit waits: the email poller was running and sharing the same quota during the eval. Without contention, p95 was 4.4 s in the previous run.
 
 The **held-out set** was written after prompt tuning and never used to tune anything, so it is the honest check that the main-set numbers are not overfit. The full report, including per-ticket results, the confusion matrix and the threshold sweep, is in [`backend/eval/report.json`](backend/eval/report.json) and in the app's **Evaluation** tab.
 
@@ -57,7 +58,7 @@ The pipeline is a **LangGraph** state machine ([`backend/app/graph.py`](backend/
 
 1. **Pre-checks (no LLM):** regex rules flag self-harm, prompt injection, legal threats, chargeback/fraud and social-media threats, and extract order IDs and UTR numbers. Critical flags skip the LLM entirely and route straight to a senior human with a safe holding reply. Self-harm replies include the Tele-MANAS helpline. *Cheap, instant and auditable: the cases where we never want to depend on a model's judgement.*
 2. **Classify:** structured output with categories (multi-label), confidence, sentiment, at-risk flag, *does this need a staff member to act?*, language, the distinct issues, and an **English search query** (so Hinglish tickets still retrieve English KB passages).
-3. **Retrieve:** BM25 over 46 KB passages (11 markdown docs split by section), searched per issue so multi-issue tickets get passages for every issue.
+3. **Retrieve:** BM25 over 51 KB passages (12 markdown docs split by section), searched per issue so multi-issue tickets get passages for every issue.
 4. **Draft:** a reply that uses only the retrieved passages, with `[n]` markers. Each citation must include an **exact sentence copied from the cited passage**.
 5. **Verify citations:** code checks the passage ID exists and the quote really appears in it (normalised, with a 0.9 fuzzy tolerance for punctuation), and that every marker has a citation.
 6. **Decide:** the escalation rule below.
@@ -79,6 +80,18 @@ The LLM supplies the *signals* (sentiment, needs-action, confidence); the *decis
 
 **Confidence threshold:** the sweep in the Evaluation tab shows the classifier's self-reported confidence clusters around 0.95, so the threshold makes almost no difference below 0.9. LLM confidence scores are poorly calibrated. That's why safety comes from rules 1–4 and 6 rather than the threshold, which is kept as a last guard for vague tickets (the prompt asks for low confidence on messages with no actual issue, e.g. "hello").
 
+### Real email inbox
+
+Tickets don't have to be pasted in: the app watches a real Gmail support inbox ([`email_channel.py`](backend/app/email_channel.py), [`inbound.py`](backend/app/inbound.py)).
+
+- **Every 30 s** it reads unread mail over IMAP. It strips quoted earlier messages and signatures ("Sent from my iPhone"), and **ignores machine mail** (bounces, no-reply senders, out-of-office auto-replies), so it can never get into a reply loop.
+- **Auto-reply:** the answer is sent **in the student's thread**, without `[n]` markers, with a "Help articles" list and the ticket number.
+- **Escalate:** the student instantly gets an acknowledgement naming the team (self-harm cases get the helpline), and **Senior Support gets an alert email** with the reasons and the suggested draft. An agent edits it in the Inbox and clicks **Approve & send to …**, which sends it in the same thread.
+- Every outbound message is logged on the ticket with its delivery status. A failed send is recorded and visible, never silently dropped.
+- The Inbox refreshes live every 5 s and marks new tickets.
+
+Setup: a dedicated Gmail account with 2-Step Verification and an App Password, then `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD` and `SENIOR_SUPPORT_EMAIL` in `.env`. Polling needs no public URL. **Run only one instance with these set**, otherwise each email gets answered twice.
+
 ---
 
 ## Models and why
@@ -88,7 +101,7 @@ The LLM supplies the *signals* (sentiment, needs-action, confidence); the *decis
 | Classify | `gemini-3.5-flash-lite` | Short, well-specified task with native JSON-schema output. Fast and cheap. |
 | Draft | `gemini-3.5-flash-lite` | Produced 100% verifiable citations in testing. See "What I tried" for why not Flash. |
 | Fallback | `openai/gpt-oss-120b` on Groq | Different provider, so a Gemini outage or rate limit doesn't take the service down. Tested by forcing Gemini to fail. |
-| Retrieval | BM25 (`rank-bm25`) | 46 short passages: keyword search is enough, explainable, and needs no embedding model or vector DB. |
+| Retrieval | BM25 (`rank-bm25`) | 51 short passages: keyword search is enough, explainable, and needs no embedding model or vector DB. |
 
 **Settings:** Gemini thinking is set to `minimal`; on these tasks thinking added about 265 reasoning tokens and about 1.5 s per call without changing the output. `gpt-oss` runs with `reasoning_effort=low`.
 
@@ -106,7 +119,7 @@ The LLM supplies the *signals* (sentiment, needs-action, confidence); the *decis
 
 ## Cost per run
 
-Measured on the 60-ticket eval: about 1,590 tokens and 2 LLM calls per ticket.
+Measured on the 64-ticket eval: about 1,650 tokens and 2 LLM calls per ticket.
 
 | | Per ticket | Per 1,000 tickets |
 |---|---|---|
@@ -119,9 +132,9 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 
 ## How it was tested
 
-- **35 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting and the API.
-- **Labelled test set:** 60 tickets ([`backend/data/tickets/test_set.json`](backend/data/tickets/test_set.json)) covering all categories, 11 Hinglish, 8 multi-issue, angry and legal-threat tickets, prompt injection, a safety case, and edge cases ("hello", "thank you"). Each has gold categories, decision and sentiment.
-- **Held-out set:** 15 more tickets written after tuning ([`holdout_set.json`](backend/data/tickets/holdout_set.json)).
+- **55 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting, the API, and the email channel (parsing, signature/quote stripping, loop prevention, auto-reply, acknowledgement + senior alert, failed sends) against fake mail servers.
+- **Labelled test set:** 64 tickets ([`backend/data/tickets/test_set.json`](backend/data/tickets/test_set.json)) covering all categories, 12 Hinglish, 8 multi-issue, 4 pre-sales (course / admissions), angry and legal-threat tickets, prompt injection, a safety case, and edge cases ("hello", "thank you"). Each has gold categories, decision and sentiment.
+- **Held-out set:** 17 more tickets written after tuning ([`holdout_set.json`](backend/data/tickets/holdout_set.json)).
 - **Eval runner** ([`backend/eval/run_eval.py`](backend/eval/run_eval.py)): category accuracy and F1, confusion matrix, escalation precision/recall, unsafe auto-replies, sentiment, citation validity, latency, cost and fallback rate. The threshold sweep reuses stored outputs, so it costs no extra LLM calls.
 - **LangSmith tracing:** every graph run (each node, prompt, tokens and latency) is traced to LangSmith when `LANGSMITH_API_KEY` is set.
 - **End-to-end checks:** the Docker image was run locally (health, UI, a real triage), and the fallback was tested by pointing the primary at a non-existent model.
@@ -131,18 +144,18 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 ## Known limitations
 
 - **Synthetic data.** The KB (fictional "EduPrime" policies) and all tickets were written by me, and the gold labels have a single annotator. Some labels are debatable: T13 "charged twice, please check" is labelled auto-reply (policy says duplicates are auto-refunded) but the model escalates it, which is arguably fine.
-- **Prompt tuned on the main set.** The held-out set is the check against that, but at 15 tickets it is small.
+- **Prompt tuned on the main set.** The held-out set is the check against that, but at 17 tickets it is small.
 - **Self-reported confidence is poorly calibrated** (see the threshold sweep). A better signal would be agreement across several samples, at extra cost.
 - **Category "primary" ordering** on multi-issue tickets is unstable; it doesn't affect routing.
 - **BM25 depends on the classifier's English search query** for Hinglish. If the rewrite is poor, retrieval is poor; the citation check plus `kb_sufficient` then escalate the ticket.
 - **Regex pre-checks** catch common phrasings only. A rephrased injection or threat falls through to the LLM, which is still told to treat the ticket as data, and the reply can never trigger actions (there are no tools).
 - **Free-tier rate limits:** under a burst of live traffic, requests wait and retry, and if both providers stay exhausted the ticket is escalated with a holding reply, never dropped.
 - **Storage:** SQLite on a free host is wiped on restart; the inbox is re-seeded with sample tickets at startup. SQLAlchemy makes Postgres a connection-string change.
-- **Not integrated with real channels.** "Approve & send" logs the reply; it doesn't send email or WhatsApp.
+- **Channels:** email is integrated (Gmail IMAP/SMTP polling); WhatsApp is not yet. Manually pasted tickets have no channel, so "Approve & send" only logs those replies.
 
 ## What I'd do next
 
-- Connect Gmail / WhatsApp Business through n8n webhooks into `/api/triage`.
+- Connect WhatsApp Business (webhook into the same inbound flow as email).
 - Look up order and refund status from the payments system, so status questions can be auto-answered instead of escalated.
 - A calibrated confidence (self-consistency) and a larger, independently labelled test set.
 - An agent-feedback loop: log agent edits to drafts and use them as new eval cases.
@@ -189,10 +202,10 @@ One Docker image runs everywhere. FastAPI serves both the API and the built Reac
 backend/
   app/            graph.py (LangGraph), llm.py (Gemini + Groq fallback), prechecks.py, kb.py (BM25),
                   citations.py, escalation.py, prompts.py, schemas.py, db.py, main.py (FastAPI)
-  data/kb/        11 knowledge-base docs (markdown)
-  data/tickets/   test_set.json (60), holdout_set.json (15)
+  data/kb/        12 knowledge-base docs (markdown)
+  data/tickets/   test_set.json (64), holdout_set.json (17)
   eval/           run_eval.py, report.json
-  tests/          35 unit tests
+  tests/          55 unit tests
 frontend/src/     Inbox, TicketDetail, EvalDashboard (React + Tailwind + Recharts)
 Dockerfile        multi-stage: build React, then Python runtime
 ```

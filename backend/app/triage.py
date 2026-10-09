@@ -5,15 +5,24 @@ Caching keeps repeated demo clicks and eval reruns inside the free-tier quota.
 """
 import hashlib
 import json
+from functools import lru_cache
 
 from .config import CACHE_DIR, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, PROMPT_VERSION
 from .citations import strip_pasted_quotes
 from .graph import run_graph
+from .kb import get_kb
 from .schemas import TriageResult
 
 
+@lru_cache(maxsize=1)
+def _kb_fingerprint() -> str:
+    """Changes whenever any KB passage changes, so edited policies never serve stale cached answers."""
+    return hashlib.sha256("".join(p.id + p.text for p in get_kb().passages).encode()).hexdigest()[:12]
+
+
 def _cache_key(text: str, channel: str) -> str:
-    raw = json.dumps([text.strip(), channel, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, PROMPT_VERSION])
+    raw = json.dumps([text.strip(), channel, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, PROMPT_VERSION,
+                      _kb_fingerprint()])
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 

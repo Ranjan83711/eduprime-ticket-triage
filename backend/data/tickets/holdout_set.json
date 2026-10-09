@@ -1,17 +1,209 @@
 [
-  {"id": "H01", "channel": "email", "language": "en", "text": "I accidentally paid two times for the NEET test series. Will I get the extra money back?", "gold_categories": ["payment"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Duplicate payment auto-refund"},
-  {"id": "H02", "channel": "whatsapp", "language": "hinglish", "text": "Refund approve hone ke baad paisa kitne din me account me aata hai?", "gold_categories": ["refund"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Refund timeline"},
-  {"id": "H03", "channel": "email", "language": "en", "text": "I bought the Arjuna batch yesterday and want to cancel and get my money back. Order EP-81234. I watched only one lecture.", "gold_categories": ["refund"], "gold_decision": "escalate", "gold_sentiment": "calm", "notes": "Refund request needs Billing approval"},
-  {"id": "H04", "channel": "form", "language": "en", "text": "Payment of Rs 2999 failed yesterday but money was cut from my account. What happens now?", "gold_categories": ["payment"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Auto reversal within 5-7 working days"},
-  {"id": "H05", "channel": "email", "language": "en", "text": "It's been 3 hours since I paid for the batch and it still doesn't show up. Order EP-90122, payment was successful.", "gold_categories": ["batch_access", "payment"], "gold_decision": "escalate", "gold_sentiment": "frustrated", "notes": "Past 2 hours, Billing must activate"},
-  {"id": "H06", "channel": "whatsapp", "language": "hinglish", "text": "Live class ka link kab aata hai? Mujhe dikh nahi raha.", "gold_categories": ["batch_access"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Live link 10 min before"},
-  {"id": "H07", "channel": "email", "language": "en", "text": "The app logs me out every time I open it on my new phone and says too many devices.", "gold_categories": ["technical"], "gold_decision": "auto_reply", "gold_sentiment": "frustrated", "notes": "Device limit"},
-  {"id": "H08", "channel": "form", "language": "en", "text": "PDF notes do not open on the website, they just show a loading spinner forever. Tried Edge and Chrome.", "gold_categories": ["technical"], "gold_decision": "escalate", "gold_sentiment": "frustrated", "notes": "Website bug, no KB fix"},
-  {"id": "H09", "channel": "whatsapp", "language": "hinglish", "text": "Sir projectile motion me maximum height ka formula kaise derive karte hain?", "gold_categories": ["academic_doubt"], "gold_decision": "escalate", "gold_sentiment": "calm", "notes": "Academic doubt -> mentors"},
-  {"id": "H10", "channel": "email", "language": "en", "text": "How do I download my invoice? Also my videos lag a lot on mobile data.", "gold_categories": ["payment", "technical"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Multi-issue, both self-serve"},
-  {"id": "H11", "channel": "email", "language": "en", "text": "Worst experience ever. My books never came, nobody answers calls, I want my money back today or I'm going to the consumer forum.", "gold_categories": ["other", "refund"], "gold_decision": "escalate", "gold_sentiment": "angry", "notes": "Angry, legal threat"},
-  {"id": "H12", "channel": "whatsapp", "language": "en", "text": "hi", "gold_categories": ["other"], "gold_decision": "escalate", "gold_sentiment": "calm", "notes": "No actionable content"},
-  {"id": "H13", "channel": "email", "language": "en", "text": "Can I watch lectures after my exam is over? Until when is my batch valid?", "gold_categories": ["batch_access"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Validity"},
-  {"id": "H14", "channel": "form", "language": "en", "text": "Please switch me from Lakshya JEE to Arjuna JEE. I purchased 4 days ago and will pay the difference.", "gold_categories": ["batch_access"], "gold_decision": "escalate", "gold_sentiment": "calm", "notes": "Eligible batch change, Academic Ops"},
-  {"id": "H15", "channel": "email", "language": "en", "text": "When does the rank for Sunday's mock test come out?", "gold_categories": ["other"], "gold_decision": "auto_reply", "gold_sentiment": "calm", "notes": "Rank published after 48 hours"}
+ {
+  "id": "H01",
+  "channel": "email",
+  "language": "en",
+  "text": "I accidentally paid two times for the NEET test series. Will I get the extra money back?",
+  "gold_categories": [
+   "payment"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Duplicate payment auto-refund"
+ },
+ {
+  "id": "H02",
+  "channel": "whatsapp",
+  "language": "hinglish",
+  "text": "Refund approve hone ke baad paisa kitne din me account me aata hai?",
+  "gold_categories": [
+   "refund"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Refund timeline"
+ },
+ {
+  "id": "H03",
+  "channel": "email",
+  "language": "en",
+  "text": "I bought the Arjuna batch yesterday and want to cancel and get my money back. Order EP-81234. I watched only one lecture.",
+  "gold_categories": [
+   "refund"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "calm",
+  "notes": "Refund request needs Billing approval"
+ },
+ {
+  "id": "H04",
+  "channel": "form",
+  "language": "en",
+  "text": "Payment of Rs 2999 failed yesterday but money was cut from my account. What happens now?",
+  "gold_categories": [
+   "payment"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Auto reversal within 5-7 working days"
+ },
+ {
+  "id": "H05",
+  "channel": "email",
+  "language": "en",
+  "text": "It's been 3 hours since I paid for the batch and it still doesn't show up. Order EP-90122, payment was successful.",
+  "gold_categories": [
+   "batch_access",
+   "payment"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "frustrated",
+  "notes": "Past 2 hours, Billing must activate"
+ },
+ {
+  "id": "H06",
+  "channel": "whatsapp",
+  "language": "hinglish",
+  "text": "Live class ka link kab aata hai? Mujhe dikh nahi raha.",
+  "gold_categories": [
+   "batch_access"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Live link 10 min before"
+ },
+ {
+  "id": "H07",
+  "channel": "email",
+  "language": "en",
+  "text": "The app logs me out every time I open it on my new phone and says too many devices.",
+  "gold_categories": [
+   "technical"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "frustrated",
+  "notes": "Device limit"
+ },
+ {
+  "id": "H08",
+  "channel": "form",
+  "language": "en",
+  "text": "PDF notes do not open on the website, they just show a loading spinner forever. Tried Edge and Chrome.",
+  "gold_categories": [
+   "technical"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "frustrated",
+  "notes": "Website bug, no KB fix"
+ },
+ {
+  "id": "H09",
+  "channel": "whatsapp",
+  "language": "hinglish",
+  "text": "Sir projectile motion me maximum height ka formula kaise derive karte hain?",
+  "gold_categories": [
+   "academic_doubt"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "calm",
+  "notes": "Academic doubt -> mentors"
+ },
+ {
+  "id": "H10",
+  "channel": "email",
+  "language": "en",
+  "text": "How do I download my invoice? Also my videos lag a lot on mobile data.",
+  "gold_categories": [
+   "payment",
+   "technical"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Multi-issue, both self-serve"
+ },
+ {
+  "id": "H11",
+  "channel": "email",
+  "language": "en",
+  "text": "Worst experience ever. My books never came, nobody answers calls, I want my money back today or I'm going to the consumer forum.",
+  "gold_categories": [
+   "other",
+   "refund"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "angry",
+  "notes": "Angry, legal threat"
+ },
+ {
+  "id": "H12",
+  "channel": "whatsapp",
+  "language": "en",
+  "text": "hi",
+  "gold_categories": [
+   "other"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "calm",
+  "notes": "No actionable content"
+ },
+ {
+  "id": "H13",
+  "channel": "email",
+  "language": "en",
+  "text": "Can I watch lectures after my exam is over? Until when is my batch valid?",
+  "gold_categories": [
+   "batch_access"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Validity"
+ },
+ {
+  "id": "H14",
+  "channel": "form",
+  "language": "en",
+  "text": "Please switch me from Lakshya JEE to Arjuna JEE. I purchased 4 days ago and will pay the difference.",
+  "gold_categories": [
+   "batch_access"
+  ],
+  "gold_decision": "escalate",
+  "gold_sentiment": "calm",
+  "notes": "Eligible batch change, Academic Ops"
+ },
+ {
+  "id": "H15",
+  "channel": "email",
+  "language": "en",
+  "text": "When does the rank for Sunday's mock test come out?",
+  "gold_categories": [
+   "other"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Rank published after 48 hours"
+ },
+ {
+  "id": "H16",
+  "channel": "whatsapp",
+  "language": "en",
+  "text": "Can I watch a few lectures for free before buying the GATE batch?",
+  "gold_categories": [
+   "other"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Pre-sales: demo lectures"
+ },
+ {
+  "id": "H17",
+  "channel": "email",
+  "language": "en",
+  "text": "Is there any batch for Class 8 CBSE students?",
+  "gold_categories": [
+   "other"
+  ],
+  "gold_decision": "auto_reply",
+  "gold_sentiment": "calm",
+  "notes": "Pre-sales: Class 6-12 batches, check Explore"
+ }
 ]

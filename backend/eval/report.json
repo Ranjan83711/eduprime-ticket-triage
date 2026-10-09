@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-10-09T07:54:31+00:00",
+  "generated_at": "2026-10-09T10:25:23+00:00",
   "config": {
     "classifier": "gemini-3.5-flash-lite",
     "drafter": "gemini-3.5-flash-lite",
     "fallback": "openai/gpt-oss-120b",
     "auto_reply_threshold": 0.7
   },
-  "n_tickets": 60,
+  "n_tickets": 64,
   "n_errors": 0,
   "classification": {
-    "n_classified": 58,
-    "primary_accuracy": 0.966,
-    "primary_in_gold": 0.966,
-    "exact_set_match": 0.897,
-    "micro_precision": 0.917,
-    "micro_recall": 1.0,
-    "micro_f1": 0.957,
+    "n_classified": 62,
+    "primary_accuracy": 0.984,
+    "primary_in_gold": 0.984,
+    "exact_set_match": 0.903,
+    "micro_precision": 0.92,
+    "micro_recall": 0.986,
+    "micro_f1": 0.952,
     "per_class": [
       {
         "category": "refund",
@@ -26,16 +26,16 @@
       },
       {
         "category": "payment",
-        "precision": 0.786,
+        "precision": 0.846,
         "recall": 1.0,
-        "f1": 0.88,
+        "f1": 0.917,
         "support": 11
       },
       {
         "category": "batch_access",
-        "precision": 0.933,
-        "recall": 1.0,
-        "f1": 0.966,
+        "precision": 0.929,
+        "recall": 0.929,
+        "f1": 0.929,
         "support": 14
       },
       {
@@ -54,10 +54,10 @@
       },
       {
         "category": "other",
-        "precision": 0.9,
+        "precision": 0.867,
         "recall": 1.0,
-        "f1": 0.947,
-        "support": 9
+        "f1": 0.929,
+        "support": 13
       }
     ],
     "confusion_matrix": {
@@ -88,11 +88,11 @@
         ],
         [
           0,
-          1,
-          10,
-          1,
           0,
-          0
+          11,
+          0,
+          0,
+          1
         ],
         [
           0,
@@ -116,232 +116,232 @@
           0,
           0,
           0,
-          8
+          12
         ]
       ]
     }
   },
   "escalation": {
-    "accuracy": 0.967,
+    "accuracy": 0.969,
     "escalation_precision": 0.926,
     "escalation_recall": 1.0,
     "unsafe_auto_replies": 0,
     "unnecessary_escalations": 2,
-    "auto_reply_rate": 0.55
+    "auto_reply_rate": 0.578
   },
   "sentiment": {
-    "accuracy": 0.879,
+    "accuracy": 0.903,
     "angry_recall": 1.0
   },
   "citations": {
-    "drafts_with_citations": 53,
-    "citations_total": 87,
-    "citations_valid": 86,
-    "validity_rate": 0.989,
-    "drafts_all_valid": 52
+    "drafts_with_citations": 58,
+    "citations_total": 88,
+    "citations_valid": 88,
+    "validity_rate": 1.0,
+    "drafts_all_valid": 58
   },
   "performance": {
-    "llm_calls": 116,
+    "llm_calls": 124,
     "fallback_calls": 0,
     "models_used": {
-      "gemini-3.5-flash-lite": 116
+      "gemini-3.5-flash-lite": 124
     },
-    "latency_ms_p50": 3452,
-    "latency_ms_p95": 4440,
-    "latency_samples": 58,
-    "avg_tokens_per_ticket": 1587,
-    "avg_cost_usd_per_ticket_paid_tier": 0.001095,
-    "cost_per_1000_tickets_usd_paid_tier": 1.095
+    "latency_ms_p50": 2943,
+    "latency_ms_p95": 19967,
+    "latency_samples": 62,
+    "avg_tokens_per_ticket": 1646,
+    "avg_cost_usd_per_ticket_paid_tier": 0.001112,
+    "cost_per_1000_tickets_usd_paid_tier": 1.112
   },
   "threshold_sweep": [
     {
       "threshold": 0.0,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.05,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.1,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.15,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.2,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.25,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.3,
-      "accuracy": 0.95,
-      "escalation_precision": 0.923,
-      "escalation_recall": 0.96,
-      "unsafe_auto_replies": 1,
+      "accuracy": 0.969,
+      "escalation_precision": 0.926,
+      "escalation_recall": 1.0,
+      "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.567
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.35,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.4,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.45,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.5,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.55,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.6,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.65,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.7,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.75,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.8,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.85,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.9,
-      "accuracy": 0.967,
+      "accuracy": 0.969,
       "escalation_precision": 0.926,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
       "unnecessary_escalations": 2,
-      "auto_reply_rate": 0.55
+      "auto_reply_rate": 0.578
     },
     {
       "threshold": 0.95,
-      "accuracy": 0.867,
-      "escalation_precision": 0.758,
+      "accuracy": 0.891,
+      "escalation_precision": 0.781,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
-      "unnecessary_escalations": 8,
-      "auto_reply_rate": 0.45
+      "unnecessary_escalations": 7,
+      "auto_reply_rate": 0.5
     },
     {
       "threshold": 1.0,
-      "accuracy": 0.5,
-      "escalation_precision": 0.455,
+      "accuracy": 0.438,
+      "escalation_precision": 0.41,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
-      "unnecessary_escalations": 30,
-      "auto_reply_rate": 0.083
+      "unnecessary_escalations": 36,
+      "auto_reply_rate": 0.047
     }
   ],
   "tickets": [
@@ -360,13 +360,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 1.0,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 10078,
+      "latency_ms": 42183,
       "error": null
     },
     {
@@ -390,7 +390,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3261,
+      "latency_ms": 19967,
       "error": null
     },
     {
@@ -407,14 +407,14 @@
         "refund"
       ],
       "pred_decision": "escalate",
-      "pred_sentiment": "calm",
+      "pred_sentiment": "frustrated",
       "confidence": 0.95,
       "team": "billing",
       "reasons": [
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 4846,
+      "latency_ms": 38503,
       "error": null
     },
     {
@@ -438,7 +438,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 6126,
+      "latency_ms": 35513,
       "error": null
     },
     {
@@ -462,7 +462,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3490,
+      "latency_ms": 3521,
       "error": null
     },
     {
@@ -486,7 +486,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 4157,
+      "latency_ms": 7897,
       "error": null
     },
     {
@@ -511,7 +511,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3582,
+      "latency_ms": 2837,
       "error": null
     },
     {
@@ -539,7 +539,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3510,
+      "latency_ms": 2998,
       "error": null
     },
     {
@@ -563,7 +563,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3564,
+      "latency_ms": 3368,
       "error": null
     },
     {
@@ -581,13 +581,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 1.0,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3400,
+      "latency_ms": 3174,
       "error": null
     },
     {
@@ -605,14 +605,13 @@
       ],
       "pred_decision": "escalate",
       "pred_sentiment": "frustrated",
-      "confidence": 0.99,
+      "confidence": 1.0,
       "team": "billing",
       "reasons": [
-        "needs a staff member to act in internal systems",
-        "knowledge base does not cover every issue"
+        "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3391,
+      "latency_ms": 3300,
       "error": null
     },
     {
@@ -638,7 +637,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 4381,
+      "latency_ms": 3741,
       "error": null
     },
     {
@@ -656,13 +655,13 @@
       ],
       "pred_decision": "escalate",
       "pred_sentiment": "calm",
-      "confidence": 1.0,
+      "confidence": 0.95,
       "team": "billing",
       "reasons": [
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3245,
+      "latency_ms": 2669,
       "error": null
     },
     {
@@ -686,7 +685,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3168,
+      "latency_ms": 2725,
       "error": null
     },
     {
@@ -710,7 +709,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 4068,
+      "latency_ms": 3114,
       "error": null
     },
     {
@@ -734,7 +733,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3381,
+      "latency_ms": 2619,
       "error": null
     },
     {
@@ -752,13 +751,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 0.9,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3189,
+      "latency_ms": 2811,
       "error": null
     },
     {
@@ -787,7 +786,7 @@
         "reply has no citations"
       ],
       "citations_valid": true,
-      "latency_ms": 3452,
+      "latency_ms": 3081,
       "error": null
     },
     {
@@ -812,7 +811,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3974,
+      "latency_ms": 3205,
       "error": null
     },
     {
@@ -826,7 +825,8 @@
       "gold_decision": "escalate",
       "gold_sentiment": "calm",
       "pred_categories": [
-        "batch_access"
+        "batch_access",
+        "other"
       ],
       "pred_decision": "escalate",
       "pred_sentiment": "calm",
@@ -836,7 +836,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3617,
+      "latency_ms": 2943,
       "error": null
     },
     {
@@ -850,18 +850,17 @@
       "gold_decision": "auto_reply",
       "gold_sentiment": "calm",
       "pred_categories": [
-        "batch_access",
         "other"
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 0.9,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 4291,
+      "latency_ms": 2367,
       "error": null
     },
     {
@@ -879,13 +878,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 1.0,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3796,
+      "latency_ms": 2977,
       "error": null
     },
     {
@@ -909,7 +908,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3459,
+      "latency_ms": 2457,
       "error": null
     },
     {
@@ -923,8 +922,8 @@
       "gold_decision": "auto_reply",
       "gold_sentiment": "calm",
       "pred_categories": [
-        "technical",
-        "batch_access"
+        "batch_access",
+        "technical"
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
@@ -934,7 +933,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3731,
+      "latency_ms": 2759,
       "error": null
     },
     {
@@ -952,14 +951,14 @@
       ],
       "pred_decision": "escalate",
       "pred_sentiment": "calm",
-      "confidence": 1.0,
+      "confidence": 0.95,
       "team": "academic_ops",
       "reasons": [
         "knowledge base does not cover every issue",
         "reply has no citations"
       ],
       "citations_valid": true,
-      "latency_ms": 2759,
+      "latency_ms": 2328,
       "error": null
     },
     {
@@ -983,7 +982,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 2991,
+      "latency_ms": 3198,
       "error": null
     },
     {
@@ -1007,7 +1006,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3360,
+      "latency_ms": 2596,
       "error": null
     },
     {
@@ -1031,7 +1030,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3637,
+      "latency_ms": 3813,
       "error": null
     },
     {
@@ -1055,7 +1054,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3136,
+      "latency_ms": 3080,
       "error": null
     },
     {
@@ -1079,7 +1078,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3752,
+      "latency_ms": 2815,
       "error": null
     },
     {
@@ -1097,13 +1096,13 @@
       ],
       "pred_decision": "escalate",
       "pred_sentiment": "calm",
-      "confidence": 0.95,
+      "confidence": 1.0,
       "team": "tech_support",
       "reasons": [
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3112,
+      "latency_ms": 3110,
       "error": null
     },
     {
@@ -1127,7 +1126,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3388,
+      "latency_ms": 2840,
       "error": null
     },
     {
@@ -1145,13 +1144,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 0.95,
+      "confidence": 1.0,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3210,
+      "latency_ms": 2882,
       "error": null
     },
     {
@@ -1175,7 +1174,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3226,
+      "latency_ms": 2759,
       "error": null
     },
     {
@@ -1199,7 +1198,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 2729,
+      "latency_ms": 3094,
       "error": null
     },
     {
@@ -1228,7 +1227,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3816,
+      "latency_ms": 3280,
       "error": null
     },
     {
@@ -1253,7 +1252,7 @@
         "knowledge base does not cover every issue"
       ],
       "citations_valid": true,
-      "latency_ms": 3351,
+      "latency_ms": 2333,
       "error": null
     },
     {
@@ -1278,7 +1277,7 @@
         "academic doubt goes to the mentor team"
       ],
       "citations_valid": true,
-      "latency_ms": 3816,
+      "latency_ms": 2771,
       "error": null
     },
     {
@@ -1300,12 +1299,10 @@
       "team": "mentors",
       "reasons": [
         "needs a staff member to act in internal systems",
-        "academic doubt goes to the mentor team",
-        "knowledge base does not cover every issue",
-        "reply has no citations"
+        "academic doubt goes to the mentor team"
       ],
       "citations_valid": true,
-      "latency_ms": 3582,
+      "latency_ms": 2803,
       "error": null
     },
     {
@@ -1329,7 +1326,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3185,
+      "latency_ms": 2671,
       "error": null
     },
     {
@@ -1355,7 +1352,7 @@
         "knowledge base does not cover every issue"
       ],
       "citations_valid": true,
-      "latency_ms": 3414,
+      "latency_ms": 2853,
       "error": null
     },
     {
@@ -1380,7 +1377,7 @@
         "academic doubt goes to the mentor team"
       ],
       "citations_valid": true,
-      "latency_ms": 3131,
+      "latency_ms": 3115,
       "error": null
     },
     {
@@ -1404,7 +1401,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3300,
+      "latency_ms": 2918,
       "error": null
     },
     {
@@ -1422,13 +1419,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 0.95,
+      "confidence": 0.9,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3024,
+      "latency_ms": 2730,
       "error": null
     },
     {
@@ -1449,10 +1446,11 @@
       "confidence": 0.95,
       "team": "support",
       "reasons": [
-        "needs a staff member to act in internal systems"
+        "needs a staff member to act in internal systems",
+        "knowledge base does not cover every issue"
       ],
       "citations_valid": true,
-      "latency_ms": 3993,
+      "latency_ms": 2828,
       "error": null
     },
     {
@@ -1470,13 +1468,13 @@
       ],
       "pred_decision": "auto_reply",
       "pred_sentiment": "calm",
-      "confidence": 0.9,
+      "confidence": 0.95,
       "team": null,
       "reasons": [
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3834,
+      "latency_ms": 2753,
       "error": null
     },
     {
@@ -1500,7 +1498,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 2821,
+      "latency_ms": 3307,
       "error": null
     },
     {
@@ -1524,7 +1522,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3169,
+      "latency_ms": 2509,
       "error": null
     },
     {
@@ -1548,7 +1546,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3655,
+      "latency_ms": 3126,
       "error": null
     },
     {
@@ -1574,7 +1572,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 4440,
+      "latency_ms": 3360,
       "error": null
     },
     {
@@ -1600,7 +1598,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 4074,
+      "latency_ms": 3193,
       "error": null
     },
     {
@@ -1623,10 +1621,11 @@
       "confidence": 0.95,
       "team": "academic_ops",
       "reasons": [
-        "needs a staff member to act in internal systems"
+        "needs a staff member to act in internal systems",
+        "knowledge base does not cover every issue"
       ],
       "citations_valid": true,
-      "latency_ms": 4225,
+      "latency_ms": 2917,
       "error": null
     },
     {
@@ -1653,7 +1652,7 @@
         "academic doubt goes to the mentor team"
       ],
       "citations_valid": true,
-      "latency_ms": 4001,
+      "latency_ms": 3185,
       "error": null
     },
     {
@@ -1677,7 +1676,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 3291,
+      "latency_ms": 2480,
       "error": null
     },
     {
@@ -1703,7 +1702,7 @@
         "needs a staff member to act in internal systems"
       ],
       "citations_valid": true,
-      "latency_ms": 3452,
+      "latency_ms": 2947,
       "error": null
     },
     {
@@ -1724,10 +1723,11 @@
       "confidence": 0.3,
       "team": "support",
       "reasons": [
-        "classifier confidence 0.30 below threshold 0.70"
+        "classifier confidence 0.30 below threshold 0.70",
+        "knowledge base does not cover every issue"
       ],
       "citations_valid": true,
-      "latency_ms": 2841,
+      "latency_ms": 2491,
       "error": null
     },
     {
@@ -1750,7 +1750,7 @@
         "ticket was not classified"
       ],
       "citations_valid": true,
-      "latency_ms": 40,
+      "latency_ms": 4,
       "error": null
     },
     {
@@ -1773,7 +1773,7 @@
         "ticket was not classified"
       ],
       "citations_valid": true,
-      "latency_ms": 40,
+      "latency_ms": 4,
       "error": null
     },
     {
@@ -1797,7 +1797,7 @@
         "all checks passed"
       ],
       "citations_valid": true,
-      "latency_ms": 2413,
+      "latency_ms": 2425,
       "error": null
     },
     {
@@ -1812,7 +1812,6 @@
       "gold_decision": "escalate",
       "gold_sentiment": "angry",
       "pred_categories": [
-        "payment",
         "batch_access",
         "refund"
       ],
@@ -1824,39 +1823,134 @@
         "pre-check flag: legal_threat",
         "student is angry",
         "student is at risk of churning",
-        "needs a staff member to act in internal systems",
-        "1 citation(s) failed verification"
+        "needs a staff member to act in internal systems"
       ],
-      "citations_valid": false,
-      "latency_ms": 3611,
+      "citations_valid": true,
+      "latency_ms": 2871,
+      "error": null
+    },
+    {
+      "id": "T61",
+      "text": "Query for PW. Any course left for GATE CSE 2027?",
+      "language": "en",
+      "notes": "Pre-sales: open batches listed in Explore",
+      "gold_categories": [
+        "other"
+      ],
+      "gold_decision": "auto_reply",
+      "gold_sentiment": "calm",
+      "pred_categories": [
+        "other"
+      ],
+      "pred_decision": "auto_reply",
+      "pred_sentiment": "calm",
+      "confidence": 0.9,
+      "team": null,
+      "reasons": [
+        "all checks passed"
+      ],
+      "citations_valid": true,
+      "latency_ms": 2938,
+      "error": null
+    },
+    {
+      "id": "T62",
+      "text": "NEET 2027 ka batch kab start hoga aur fees kitni hai?",
+      "language": "hinglish",
+      "notes": "Pre-sales: start date and price in Explore",
+      "gold_categories": [
+        "other"
+      ],
+      "gold_decision": "auto_reply",
+      "gold_sentiment": "calm",
+      "pred_categories": [
+        "other"
+      ],
+      "pred_decision": "auto_reply",
+      "pred_sentiment": "calm",
+      "confidence": 0.95,
+      "team": null,
+      "reasons": [
+        "all checks passed"
+      ],
+      "citations_valid": true,
+      "latency_ms": 3164,
+      "error": null
+    },
+    {
+      "id": "T63",
+      "text": "I am confused between the JEE Arjuna and Lakshya batches. Which one should I take?",
+      "language": "en",
+      "notes": "Pre-sales: free counsellor call",
+      "gold_categories": [
+        "other"
+      ],
+      "gold_decision": "auto_reply",
+      "gold_sentiment": "calm",
+      "pred_categories": [
+        "other"
+      ],
+      "pred_decision": "auto_reply",
+      "pred_sentiment": "calm",
+      "confidence": 0.95,
+      "team": null,
+      "reasons": [
+        "all checks passed"
+      ],
+      "citations_valid": true,
+      "latency_ms": 3240,
+      "error": null
+    },
+    {
+      "id": "T64",
+      "text": "Do you have any scholarship or discount for the UPSC batch?",
+      "language": "en",
+      "notes": "Pre-sales: monthly scholarship test",
+      "gold_categories": [
+        "other"
+      ],
+      "gold_decision": "auto_reply",
+      "gold_sentiment": "calm",
+      "pred_categories": [
+        "other"
+      ],
+      "pred_decision": "auto_reply",
+      "pred_sentiment": "calm",
+      "confidence": 0.95,
+      "team": null,
+      "reasons": [
+        "all checks passed"
+      ],
+      "citations_valid": true,
+      "latency_ms": 3009,
       "error": null
     }
   ],
   "holdout": {
-    "n_tickets": 15,
+    "n_tickets": 17,
     "n_errors": 0,
     "classification": {
-      "primary_accuracy": 0.867,
-      "micro_f1": 0.973,
-      "exact_set_match": 0.933
+      "primary_accuracy": 0.882,
+      "micro_f1": 0.95,
+      "exact_set_match": 0.882
     },
     "escalation": {
-      "accuracy": 1.0,
-      "escalation_precision": 1.0,
+      "accuracy": 0.941,
+      "escalation_precision": 0.875,
       "escalation_recall": 1.0,
       "unsafe_auto_replies": 0,
-      "unnecessary_escalations": 0,
-      "auto_reply_rate": 0.533
+      "unnecessary_escalations": 1,
+      "auto_reply_rate": 0.529
     },
     "citations": {
-      "drafts_with_citations": 14,
-      "citations_total": 24,
-      "citations_valid": 24,
-      "validity_rate": 1.0,
-      "drafts_all_valid": 14
+      "drafts_with_citations": 13,
+      "citations_total": 23,
+      "citations_valid": 22,
+      "validity_rate": 0.957,
+      "drafts_all_valid": 12
     },
     "sentiment": {
-      "accuracy": 0.867,
+      "accuracy": 0.941,
       "angry_recall": 1.0
     },
     "tickets": [
@@ -1882,7 +1976,7 @@
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3043,
+        "latency_ms": 2677,
         "error": null
       },
       {
@@ -1900,13 +1994,13 @@
         ],
         "pred_decision": "auto_reply",
         "pred_sentiment": "calm",
-        "confidence": 0.95,
+        "confidence": 1.0,
         "team": null,
         "reasons": [
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3008,
+        "latency_ms": 2223,
         "error": null
       },
       {
@@ -1930,7 +2024,7 @@
           "needs a staff member to act in internal systems"
         ],
         "citations_valid": true,
-        "latency_ms": 3532,
+        "latency_ms": 2749,
         "error": null
       },
       {
@@ -1948,13 +2042,13 @@
         ],
         "pred_decision": "auto_reply",
         "pred_sentiment": "calm",
-        "confidence": 1.0,
+        "confidence": 0.95,
         "team": null,
         "reasons": [
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3244,
+        "latency_ms": 2820,
         "error": null
       },
       {
@@ -1980,7 +2074,7 @@
           "needs a staff member to act in internal systems"
         ],
         "citations_valid": true,
-        "latency_ms": 3393,
+        "latency_ms": 2756,
         "error": null
       },
       {
@@ -2004,7 +2098,7 @@
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3418,
+        "latency_ms": 3204,
         "error": null
       },
       {
@@ -2028,7 +2122,7 @@
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3362,
+        "latency_ms": 2558,
         "error": null
       },
       {
@@ -2045,7 +2139,7 @@
           "technical"
         ],
         "pred_decision": "escalate",
-        "pred_sentiment": "calm",
+        "pred_sentiment": "frustrated",
         "confidence": 0.95,
         "team": "tech_support",
         "reasons": [
@@ -2054,7 +2148,7 @@
           "reply has no citations"
         ],
         "citations_valid": true,
-        "latency_ms": 3317,
+        "latency_ms": 2459,
         "error": null
       },
       {
@@ -2072,14 +2166,16 @@
         ],
         "pred_decision": "escalate",
         "pred_sentiment": "calm",
-        "confidence": 0.95,
+        "confidence": 1.0,
         "team": "mentors",
         "reasons": [
           "needs a staff member to act in internal systems",
-          "academic doubt goes to the mentor team"
+          "academic doubt goes to the mentor team",
+          "knowledge base does not cover every issue",
+          "reply has no citations"
         ],
         "citations_valid": true,
-        "latency_ms": 3346,
+        "latency_ms": 2691,
         "error": null
       },
       {
@@ -2105,7 +2201,7 @@
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3485,
+        "latency_ms": 3197,
         "error": null
       },
       {
@@ -2120,12 +2216,11 @@
         "gold_decision": "escalate",
         "gold_sentiment": "angry",
         "pred_categories": [
-          "refund",
-          "other"
+          "refund"
         ],
         "pred_decision": "escalate",
         "pred_sentiment": "angry",
-        "confidence": 0.95,
+        "confidence": 0.97,
         "team": "senior_support",
         "reasons": [
           "pre-check flag: legal_threat",
@@ -2134,7 +2229,7 @@
           "needs a staff member to act in internal systems"
         ],
         "citations_valid": true,
-        "latency_ms": 3507,
+        "latency_ms": 3551,
         "error": null
       },
       {
@@ -2155,10 +2250,11 @@
         "confidence": 0.3,
         "team": "support",
         "reasons": [
-          "classifier confidence 0.30 below threshold 0.70"
+          "classifier confidence 0.30 below threshold 0.70",
+          "knowledge base does not cover every issue"
         ],
         "citations_valid": true,
-        "latency_ms": 3215,
+        "latency_ms": 2241,
         "error": null
       },
       {
@@ -2176,13 +2272,13 @@
         ],
         "pred_decision": "auto_reply",
         "pred_sentiment": "calm",
-        "confidence": 1.0,
+        "confidence": 0.97,
         "team": null,
         "reasons": [
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 3001,
+        "latency_ms": 2886,
         "error": null
       },
       {
@@ -2200,13 +2296,15 @@
         ],
         "pred_decision": "escalate",
         "pred_sentiment": "calm",
-        "confidence": 1.0,
+        "confidence": 0.96,
         "team": "academic_ops",
         "reasons": [
-          "needs a staff member to act in internal systems"
+          "needs a staff member to act in internal systems",
+          "knowledge base does not cover every issue",
+          "reply has no citations"
         ],
         "citations_valid": true,
-        "latency_ms": 3188,
+        "latency_ms": 41652,
         "error": null
       },
       {
@@ -2230,7 +2328,55 @@
           "all checks passed"
         ],
         "citations_valid": true,
-        "latency_ms": 4971,
+        "latency_ms": 3435,
+        "error": null
+      },
+      {
+        "id": "H16",
+        "text": "Can I watch a few lectures for free before buying the GATE batch?",
+        "language": "en",
+        "notes": "Pre-sales: demo lectures",
+        "gold_categories": [
+          "other"
+        ],
+        "gold_decision": "auto_reply",
+        "gold_sentiment": "calm",
+        "pred_categories": [
+          "other"
+        ],
+        "pred_decision": "auto_reply",
+        "pred_sentiment": "calm",
+        "confidence": 0.97,
+        "team": null,
+        "reasons": [
+          "all checks passed"
+        ],
+        "citations_valid": true,
+        "latency_ms": 2847,
+        "error": null
+      },
+      {
+        "id": "H17",
+        "text": "Is there any batch for Class 8 CBSE students?",
+        "language": "en",
+        "notes": "Pre-sales: Class 6-12 batches, check Explore",
+        "gold_categories": [
+          "other"
+        ],
+        "gold_decision": "auto_reply",
+        "gold_sentiment": "calm",
+        "pred_categories": [
+          "other"
+        ],
+        "pred_decision": "escalate",
+        "pred_sentiment": "calm",
+        "confidence": 0.97,
+        "team": "support",
+        "reasons": [
+          "1 citation(s) failed verification"
+        ],
+        "citations_valid": false,
+        "latency_ms": 2970,
         "error": null
       }
     ]

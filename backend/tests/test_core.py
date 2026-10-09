@@ -29,7 +29,7 @@ def good_draft():
 
 def test_kb_loads_all_docs_into_passages():
     passages = load_passages()
-    assert len({p.doc for p in passages}) == 11
+    assert len({p.doc for p in passages}) == 12
     assert len(passages) >= 40
     assert len({p.id for p in passages}) == len(passages), "passage ids must be unique"
 
