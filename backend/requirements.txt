@@ -1,0 +1,22 @@
+# API
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+sqlalchemy
+
+# LLM orchestration + observability
+langchain
+langchain-core
+langgraph
+langchain-google-genai
+langchain-groq
+langsmith
+
+# Retrieval + evaluation
+rank-bm25
+scikit-learn
+
+# Tests
+pytest
+httpx
