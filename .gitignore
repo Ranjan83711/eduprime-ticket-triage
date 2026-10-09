@@ -27,3 +27,4 @@ Thumbs.db
 # Assignment brief (not part of the project)
 *.docx
 .claude/
+docs/demo-video-script.md
