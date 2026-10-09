@@ -98,7 +98,7 @@ The LLM supplies the *signals* (sentiment, needs-action, confidence); the *decis
 - Gemini 3 rejects `thinking_budget=0` (Gemini 2.5 style) and Flash-Lite ignores `temperature`, so I use `thinking_level` instead and don't pass temperature.
 - Groq's free tier allows only **8k tokens/minute**. When Gemini hit its per-minute limit, the burst of fallback calls also hit Groq's. Fix: retry the whole chain with backoff on 429, and pace the eval runner.
 - First prompt version: 10 unnecessary escalations, because the classifier said "needs staff action" for anything money-related. I rewrote the definition with concrete examples (duplicate charges and failed payments resolve automatically per policy, etc.), and **unnecessary escalations went from 10 to 2 with 0 unsafe auto-replies**.
-- Drafts first copied KB sentences verbatim in the third person ("the student should…"). The prompt now requires second person and keeps exact copies only in the citation field.
+- Drafts first copied KB sentences verbatim in the third person ("the student should…"). The prompt now requires second person and keeps exact copies only in the citation field. Flash-Lite still occasionally pastes the quote right after its own paraphrase, so a small code step removes a quote **only** when the sentence before it cites the same marker and says the same thing. A first, simpler version (remove any standalone quote) deleted facts that appeared only as quotes; checking it against all 207 cached drafts caught that before shipping. The final rule changes 6 of 207 drafts, all true duplicates.
 
 **Data note:** on the free tier, Google may use prompts to improve its models. That's fine here because every ticket is synthetic. Real student data would need the paid tier or Azure OpenAI with data-processing terms.
 
@@ -119,7 +119,7 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 
 ## How it was tested
 
-- **30 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting and the API.
+- **35 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting and the API.
 - **Labelled test set:** 60 tickets ([`backend/data/tickets/test_set.json`](backend/data/tickets/test_set.json)) covering all categories, 11 Hinglish, 8 multi-issue, angry and legal-threat tickets, prompt injection, a safety case, and edge cases ("hello", "thank you"). Each has gold categories, decision and sentiment.
 - **Held-out set:** 15 more tickets written after tuning ([`holdout_set.json`](backend/data/tickets/holdout_set.json)).
 - **Eval runner** ([`backend/eval/run_eval.py`](backend/eval/run_eval.py)): category accuracy and F1, confusion matrix, escalation precision/recall, unsafe auto-replies, sentiment, citation validity, latency, cost and fallback rate. The threshold sweep reuses stored outputs, so it costs no extra LLM calls.
@@ -192,7 +192,7 @@ backend/
   data/kb/        11 knowledge-base docs (markdown)
   data/tickets/   test_set.json (60), holdout_set.json (15)
   eval/           run_eval.py, report.json
-  tests/          30 unit tests
+  tests/          35 unit tests
 frontend/src/     Inbox, TicketDetail, EvalDashboard (React + Tailwind + Recharts)
 Dockerfile        multi-stage: build React, then Python runtime
 ```

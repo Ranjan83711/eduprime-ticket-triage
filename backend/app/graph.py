@@ -15,7 +15,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
 
 from . import prompts
-from .citations import verify_citations
+from .citations import strip_pasted_quotes, verify_citations
 from .escalation import decide
 from .kb import get_kb
 from .llm import call_structured
@@ -89,7 +89,8 @@ def draft_node(state: TriageState) -> TriageState:
 def verify_node(state: TriageState) -> TriageState:
     if state.get("draft") is None:
         return {"citation_checks": []}
-    return {"citation_checks": verify_citations(state["draft"], get_kb())}
+    draft = strip_pasted_quotes(state["draft"])
+    return {"draft": draft, "citation_checks": verify_citations(draft, get_kb())}
 
 
 def decide_node(state: TriageState) -> TriageState:

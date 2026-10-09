@@ -1,7 +1,7 @@
 """Tests for the deterministic parts of the pipeline (no LLM calls, no API keys needed)."""
 import json
 
-from app.citations import verify_citations
+from app.citations import strip_pasted_quotes, verify_citations
 from app.config import TEST_SET_PATH
 from app.escalation import decide
 from app.kb import get_kb, load_passages
@@ -90,6 +90,48 @@ def test_quote_with_minor_punctuation_difference_passes():
     d = good_draft()
     d.citations[0].quote = d.citations[0].quote.replace(",", "") + "."
     assert verify_citations(d, get_kb())[0].valid
+
+
+def test_pasted_quote_is_removed_but_paraphrase_kept():
+    q = "A maximum of 100 lectures can be stored offline at a time."
+    d = Draft(reply=f"Arrey dost! You can store up to 100 lectures offline [1]. {q} [1] Downloads need the app [2].",
+              citations=[Citation(marker=1, passage_id="offline_downloads#download-limits", quote=q)],
+              kb_sufficient=True)
+    out = strip_pasted_quotes(d).reply
+    assert q not in out
+    assert out == "Arrey dost! You can store up to 100 lectures offline [1]. Downloads need the app [2]."
+
+
+def test_paraphrase_inside_a_sentence_is_kept_and_pasted_copy_removed():
+    q = "Downloads are not available on the website."
+    d = Draft(reply=f"Please note that downloads are not available on the website [2]. {q} [2]",
+              citations=[Citation(marker=2, passage_id="offline_downloads#download-limits", quote=q)],
+              kb_sufficient=True)
+    assert strip_pasted_quotes(d).reply == "Please note that downloads are not available on the website [2]."
+
+
+def test_duplicate_with_marker_then_period_leaves_no_stray_dot():
+    q = "No-cost EMI is available on credit cards and select debit cards for purchases above Rs 3,000"
+    d = Draft(reply=f"No-cost EMI is only offered on purchases above Rs 3,000 [1]. {q} [1]. Check with your bank [2].",
+              citations=[Citation(marker=1, passage_id="x", quote=q + ".")], kb_sufficient=True)
+    assert strip_pasted_quotes(d).reply == "No-cost EMI is only offered on purchases above Rs 3,000 [1]. Check with your bank [2]."
+
+
+def test_quote_that_is_the_only_statement_of_a_fact_is_kept():
+    q = "Cash payments are only accepted at EduPrime offline centres."
+    reply = f"Hello! Thanks for asking. {q} [1] EduPrime accepts UPI and cards [1]."
+    d = Draft(reply=reply, citations=[Citation(marker=1, passage_id="x", quote=q)], kb_sufficient=True)
+    assert strip_pasted_quotes(d).reply == reply
+    # Same marker before it, but a different fact: still kept.
+    reply2 = f"EduPrime accepts UPI, cards and wallets [1]. {q} [1]"
+    d2 = Draft(reply=reply2, citations=[Citation(marker=1, passage_id="x", quote=q)], kb_sufficient=True)
+    assert strip_pasted_quotes(d2).reply == reply2
+
+
+def test_reply_that_is_only_the_quote_is_left_alone():
+    q = "A maximum of 100 lectures can be stored offline at a time."
+    d = Draft(reply=f"{q} [1]", citations=[Citation(marker=1, passage_id="x", quote=q)], kb_sufficient=True)
+    assert strip_pasted_quotes(d).reply == f"{q} [1]"
 
 
 # ---------- Escalation ----------

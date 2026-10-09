@@ -7,6 +7,7 @@ import hashlib
 import json
 
 from .config import CACHE_DIR, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, PROMPT_VERSION
+from .citations import strip_pasted_quotes
 from .graph import run_graph
 from .schemas import TriageResult
 
@@ -19,7 +20,10 @@ def _cache_key(text: str, channel: str) -> str:
 def triage(text: str, channel: str = "form", use_cache: bool = True) -> TriageResult:
     path = CACHE_DIR / f"{_cache_key(text, channel)}.json"
     if use_cache and path.exists():
-        return TriageResult.model_validate_json(path.read_text(encoding="utf-8"))
+        cached = TriageResult.model_validate_json(path.read_text(encoding="utf-8"))
+        if cached.draft:  # entries cached before the clean-up step existed
+            cached.draft = strip_pasted_quotes(cached.draft)
+        return cached
 
     state, latency_ms = run_graph(text, channel)
     calls = state.get("llm_calls", [])
