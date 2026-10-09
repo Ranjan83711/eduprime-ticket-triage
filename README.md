@@ -92,6 +92,17 @@ Tickets don't have to be pasted in: the app watches a real Gmail support inbox (
 
 Setup: a dedicated Gmail account with 2-Step Verification and an App Password, then `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD` and `SENIOR_SUPPORT_EMAIL` in `.env`. Polling needs no public URL. **Sending:** SMTP by default; set `GMAIL_CLIENT_ID` / `GMAIL_CLIENT_SECRET` (a Google Cloud Desktop OAuth client) and run `python -m scripts.gmail_auth` once to send through the **Gmail API over HTTPS** instead. That's needed on Render's free tier, which blocks outbound SMTP: the first live test failed with `Network is unreachable`, the app recorded it as **send failed** and put the ticket in front of a human instead of showing "auto-replied". The OAuth scope is `gmail.send` only. **Run only one instance with these set**, otherwise each email gets answered twice.
 
+### WhatsApp (Meta WhatsApp Cloud API)
+
+Students can also message a WhatsApp number ([`meta_whatsapp.py`](backend/app/meta_whatsapp.py)); the flow is the same as email.
+
+- Meta calls `/api/whatsapp/meta-webhook`. The one-time verify-token handshake is checked, and **every POST's `X-Hub-Signature-256` is verified with the app secret**, so forged requests are rejected (403, counted in `/api/health`).
+- The webhook answers Meta immediately and triages in the background; the reply is sent through the Graph API as normal text. That's allowed within 24 h of the student's message, so no templates are needed. Escalations get an acknowledgement and a senior alert, and agents' approved replies go out on WhatsApp too.
+- Duplicate deliveries (Meta retries) are ignored by message id; status updates and non-text messages are skipped.
+- Setup gotchas found while wiring it up: the app must be **subscribed to the WhatsApp Business Account** (`POST /{waba-id}/subscribed_apps`) **and** to the `messages` webhook field. Saving the callback URL alone delivers nothing.
+- Demo limits: Meta's free test number only messages up to 5 verified recipients, and the quick-start access token expires after 24 h (production uses a system-user token and a registered business number).
+- A Twilio implementation ([`whatsapp_channel.py`](backend/app/whatsapp_channel.py)) is kept as an alternative. On a Twilio *trial*, the newer WhatsApp sandbox rejects API-sent free-form messages (error 21654) and templates are paid-only, so the app replies inside the webhook response (TwiML) when triage finishes within Twilio's 15 s window.
+
 ---
 
 ## Models and why
@@ -132,7 +143,7 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 
 ## How it was tested
 
-- **55 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting, the API, and the email channel (parsing, signature/quote stripping, loop prevention, auto-reply, acknowledgement + senior alert, failed sends) against fake mail servers.
+- **75 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting, the API, and the email channel (parsing, signature/quote stripping, loop prevention, auto-reply, acknowledgement + senior alert, failed sends) against fake mail servers.
 - **Labelled test set:** 64 tickets ([`backend/data/tickets/test_set.json`](backend/data/tickets/test_set.json)) covering all categories, 12 Hinglish, 8 multi-issue, 4 pre-sales (course / admissions), angry and legal-threat tickets, prompt injection, a safety case, and edge cases ("hello", "thank you"). Each has gold categories, decision and sentiment.
 - **Held-out set:** 17 more tickets written after tuning ([`holdout_set.json`](backend/data/tickets/holdout_set.json)).
 - **Eval runner** ([`backend/eval/run_eval.py`](backend/eval/run_eval.py)): category accuracy and F1, confusion matrix, escalation precision/recall, unsafe auto-replies, sentiment, citation validity, latency, cost and fallback rate. The threshold sweep reuses stored outputs, so it costs no extra LLM calls.
@@ -151,11 +162,11 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 - **Regex pre-checks** catch common phrasings only. A rephrased injection or threat falls through to the LLM, which is still told to treat the ticket as data, and the reply can never trigger actions (there are no tools).
 - **Free-tier rate limits:** under a burst of live traffic, requests wait and retry, and if both providers stay exhausted the ticket is escalated with a holding reply, never dropped.
 - **Storage:** SQLite on a free host is wiped on restart; the inbox is re-seeded with sample tickets at startup. SQLAlchemy makes Postgres a connection-string change.
-- **Channels:** email is integrated (Gmail IMAP/SMTP polling); WhatsApp is not yet. Manually pasted tickets have no channel, so "Approve & send" only logs those replies.
+- **Channels:** email (Gmail) and WhatsApp (Meta Cloud API test number) are integrated. Manually pasted tickets have no channel, so "Approve & send" only logs those replies. The WhatsApp test setup only reaches verified recipient numbers and its token lasts 24 h.
 
 ## What I'd do next
 
-- Connect WhatsApp Business (webhook into the same inbound flow as email).
+- Move WhatsApp to a registered business number with a permanent system-user token.
 - Look up order and refund status from the payments system, so status questions can be auto-answered instead of escalated.
 - A calibrated confidence (self-consistency) and a larger, independently labelled test set.
 - An agent-feedback loop: log agent edits to drafts and use them as new eval cases.
@@ -205,7 +216,7 @@ backend/
   data/kb/        12 knowledge-base docs (markdown)
   data/tickets/   test_set.json (64), holdout_set.json (17)
   eval/           run_eval.py, report.json
-  tests/          55 unit tests
+  tests/          75 unit tests
 frontend/src/     Inbox, TicketDetail, EvalDashboard (React + Tailwind + Recharts)
 Dockerfile        multi-stage: build React, then Python runtime
 ```
