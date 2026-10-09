@@ -42,7 +42,8 @@ def test_signature_matches_twilio_scheme():
 
 def test_parse_webhook():
     item = whatsapp_channel.parse_webhook(msg())
-    assert item == {"contact": "+919876543210", "name": "Riya", "message_sid": "SM1", "text": "Video buffer ho rahi hai"}
+    assert item == {"contact": "+919876543210", "name": "Riya", "message_sid": "SM1",
+                    "our_number": "whatsapp:+14155238886", "text": "Video buffer ho rahi hai"}
     assert whatsapp_channel.parse_webhook({**msg(), "Body": "  "}) is None          # media-only
     assert whatsapp_channel.parse_webhook({**msg(), "From": "+919876543210"}) is None  # not WhatsApp
 
@@ -59,8 +60,9 @@ def test_send_whatsapp_calls_twilio(monkeypatch):
         status_code, text = 201, "{}"
 
     monkeypatch.setattr(whatsapp_channel.httpx, "post", lambda url, **kw: calls.append((url, kw)) or R())
-    whatsapp_channel.send_whatsapp("+919876543210", "x" * 2000)
+    whatsapp_channel.send_whatsapp("+919876543210", "x" * 2000, from_number="whatsapp:+17372508034")
     url, kw = calls[0]
+    assert kw["data"]["From"] == "whatsapp:+17372508034"
     assert url.endswith("/Accounts/ACtest/Messages.json") and kw["auth"] == ("ACtest", TOKEN)
     assert kw["data"]["To"] == "whatsapp:+919876543210" and len(kw["data"]["Body"]) == 1600
 
@@ -78,7 +80,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app.main.email_channel, "start_poller", lambda handle: False)
     monkeypatch.setattr(inbound, "db", app.db)
     sent = []
-    monkeypatch.setattr(whatsapp_channel, "send_whatsapp", lambda to, body: sent.append((to, body)))
+    monkeypatch.setattr(whatsapp_channel, "send_whatsapp", lambda to, body, from_number=None: sent.append((to, body, from_number)))
     monkeypatch.setattr(inbound.email_channel, "enabled", lambda: False)  # no senior email in these tests
     with TestClient(app.main.app) as c:
         c.sent = sent
@@ -96,31 +98,57 @@ def test_forged_request_is_rejected(client, monkeypatch):
     assert client.sent == []
 
 
-def test_message_is_triaged_and_answered_on_whatsapp(client, monkeypatch):
+def test_fast_reply_comes_back_in_the_webhook_response(client, monkeypatch):
     monkeypatch.setattr(inbound, "triage", lambda t, ch: fake_result("auto_reply"))
     r = post(client, msg())
-    assert r.status_code == 200 and r.text == "<Response></Response>"
-    to, body = client.sent[0]
-    assert to == "+919876543210" and "5-7 working days" in body and "[1]" not in body
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/xml")
+    assert "<Message>" in r.text and "5-7 working days" in r.text and "[1]" not in r.text
+    assert client.sent == []  # answered in the HTTP response, no separate API send needed
     t = client.get("/api/tickets").json()[0]
     assert t["channel"] == "whatsapp" and t["meta"]["contact"] == "+919876543210" and t["status"] == "auto_sent"
+    assert t["meta"]["deliveries"][0]["via"] == "webhook reply"
+
+
+def test_slow_triage_sends_holding_message_then_api_reply(client, monkeypatch):
+    import time
+    import app.main
+    monkeypatch.setattr(app.main, "WEBHOOK_REPLY_BUDGET_S", 0.2)
+
+    def slow(t, ch):
+        time.sleep(0.6)
+        return fake_result("auto_reply")
+    monkeypatch.setattr(inbound, "triage", slow)
+    r = post(client, msg(sid="SMslow"))
+    assert "looking into it" in r.text
+    for _ in range(40):  # the pipeline keeps running after the webhook answered
+        if client.sent:
+            break
+        time.sleep(0.05)
+    to, body, from_number = client.sent[0]
+    assert to == "+919876543210" and "5-7 working days" in body
+    assert from_number == "whatsapp:+14155238886"  # replies come from the number the student wrote to
 
 
 def test_twilio_retry_does_not_create_second_ticket(client, monkeypatch):
     monkeypatch.setattr(inbound, "triage", lambda t, ch: fake_result("auto_reply"))
-    post(client, msg(sid="SM42"))
-    post(client, msg(sid="SM42"))
-    assert len(client.get("/api/tickets").json()) == 1 and len(client.sent) == 1
+    first, second = post(client, msg(sid="SM42")), post(client, msg(sid="SM42"))
+    assert "<Message>" in first.text and "<Message>" not in second.text
+    assert len(client.get("/api/tickets").json()) == 1
 
 
 def test_escalation_acknowledges_on_whatsapp_and_agent_reply_goes_there(client, monkeypatch):
     monkeypatch.setattr(inbound, "triage", lambda t, ch: fake_result("escalate", team="billing"))
-    post(client, msg(body="Refund chahiye, order EP-55120"))
-    assert "Billing team" in client.sent[0][1]
+    r = post(client, msg(body="Refund chahiye, order EP-55120"))
+    assert "Billing team" in r.text
     t = client.get("/api/tickets").json()[0]
     assert t["status"] == "pending_review"
     client.post(f"/api/tickets/{t['id']}/resolve", json={"reply": "Your refund is approved [1]."})
     assert client.sent[-1][0] == "+919876543210" and "approved" in client.sent[-1][1]
+
+
+def test_twiml_escapes_reply():
+    assert "&lt;b&gt; &amp;" in whatsapp_channel.twiml("<b> &")
+    assert whatsapp_channel.twiml(None).endswith("<Response></Response>")
 
 
 def test_webhook_404_when_not_configured(client, monkeypatch):

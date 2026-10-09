@@ -9,6 +9,7 @@ import base64
 import hashlib
 import hmac
 import time
+from xml.sax.saxutils import escape
 
 import httpx
 
@@ -51,16 +52,27 @@ def parse_webhook(params: dict) -> dict | None:
     sender = params.get("From", "")
     if not text or not sender.startswith("whatsapp:"):
         return None  # media-only messages, status callbacks, non-WhatsApp
+    # "To" is our number the student wrote to; replies go out from that same number.
     return {"contact": sender.removeprefix("whatsapp:"), "name": params.get("ProfileName") or None,
-            "message_sid": params.get("MessageSid"), "text": text[:4000]}
+            "message_sid": params.get("MessageSid"), "our_number": params.get("To") or None, "text": text[:4000]}
 
 
-def send_whatsapp(to: str, body: str) -> None:
+def send_whatsapp(to: str, body: str, from_number: str | None = None) -> None:
+    """Reply from the number the student messaged (from_number); TWILIO_WHATSAPP_FROM is the fallback."""
     to = to if to.startswith("whatsapp:") else f"whatsapp:{to}"
     if len(body) > MAX_LEN:
         body = body[: MAX_LEN - 1] + "…"
     r = httpx.post(f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json",
                    auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN), timeout=20,
-                   data={"From": TWILIO_WHATSAPP_FROM, "To": to, "Body": body})
+                   data={"From": from_number or TWILIO_WHATSAPP_FROM, "To": to, "Body": body})
     if r.status_code >= 300:
         raise RuntimeError(f"Twilio send failed: {r.status_code} {r.text[:200]}")
+
+
+def twiml(reply: str | None) -> str:
+    """Webhook response: reply in the same HTTP response (a TwiML <Message>), or empty."""
+    if not reply:
+        return '<?xml version="1.0" encoding="UTF-8"?><Response></Response>'
+    if len(reply) > MAX_LEN:
+        reply = reply[: MAX_LEN - 1] + "…"
+    return f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{escape(reply)}</Message></Response>'

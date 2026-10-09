@@ -1,9 +1,10 @@
 """FastAPI app: triage API, ticket inbox, eval report, and the built React frontend."""
+import asyncio
 import json
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -20,6 +21,8 @@ from .schemas import TicketIn
 from .triage import triage
 
 EVAL_REPORT = BACKEND_DIR / "eval" / "report.json"
+WEBHOOK_REPLY_BUDGET_S = 12  # Twilio gives up at 15 s
+HOLDING_WHATSAPP = "Thanks for your message! We're looking into it and will reply here shortly."
 FRONTEND_DIST = ROOT_DIR / "frontend" / "dist"
 
 
@@ -85,7 +88,7 @@ def resolve(ticket_id: int, body: ResolveIn):
 
 
 @app.post("/api/whatsapp/webhook", include_in_schema=False)
-async def whatsapp_webhook(request: Request, background: BackgroundTasks):
+async def whatsapp_webhook(request: Request):
     """Twilio calls this for each incoming WhatsApp message."""
     if not whatsapp_channel.enabled():
         raise HTTPException(404, "WhatsApp channel not configured")
@@ -99,11 +102,20 @@ async def whatsapp_webhook(request: Request, background: BackgroundTasks):
         raise HTTPException(403, "invalid Twilio signature")
 
     item = whatsapp_channel.parse_webhook(params)
+    reply = None
     if item and not whatsapp_channel.is_duplicate(item["message_sid"] or ""):
         whatsapp_channel.status["received"] += 1
-        # Reply comes later through the REST API; answer Twilio now so it doesn't time out and retry.
-        background.add_task(inbound.process_incoming, "whatsapp", item)
-    return Response(content="<Response></Response>", media_type="application/xml")
+        # Twilio waits up to 15 s. If triage finishes in time, the reply goes back in this response
+        # (TwiML), which works even on trial accounts that block API-initiated messages. If not, the
+        # student gets a holding message now and the pipeline keeps running and sends via the API.
+        slot = inbound.ReplySlot()
+        job = asyncio.ensure_future(run_in_threadpool(inbound.process_incoming, "whatsapp", item, slot))
+        try:
+            await asyncio.wait_for(asyncio.shield(job), timeout=WEBHOOK_REPLY_BUDGET_S)
+        except asyncio.TimeoutError:
+            pass
+        reply = slot.close() or HOLDING_WHATSAPP
+    return Response(content=whatsapp_channel.twiml(reply), media_type="text/xml")
 
 
 @app.get("/api/kb")

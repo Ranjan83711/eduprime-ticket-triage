@@ -6,6 +6,7 @@ Same flow for every channel (email and WhatsApp):
 """
 import logging
 import re
+import threading
 
 from . import db, email_channel, whatsapp_channel
 from .config import SENIOR_SUPPORT_EMAIL
@@ -45,7 +46,7 @@ def _send(channel: str, meta: dict, body: str) -> None:
         email_channel.send_email(meta["contact"], meta.get("subject", "Your EduPrime query"), body,
                                  in_reply_to=meta.get("message_id"), references=meta.get("references"))
     elif channel == "whatsapp":
-        whatsapp_channel.send_whatsapp(meta["contact"], body)
+        whatsapp_channel.send_whatsapp(meta["contact"], body, from_number=meta.get("our_number"))
     else:
         raise ValueError(f"no outbound sender for channel {channel!r}")
 
@@ -85,7 +86,38 @@ def senior_alert(ticket: dict) -> str:
     )
 
 
-def process_incoming(channel: str, item: dict) -> dict:
+class ReplySlot:
+    """Lets a webhook return the student's reply in its own HTTP response (Twilio TwiML), when the
+    pipeline finishes before the webhook has to answer. After close(), offers are refused and the
+    message goes out through the normal API send instead."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.body: str | None = None
+        self.closed = False
+
+    def offer(self, body: str) -> bool:
+        with self._lock:
+            if self.closed or self.body is not None:
+                return False
+            self.body = body
+            return True
+
+    def close(self) -> str | None:
+        with self._lock:
+            self.closed = True
+            return self.body
+
+
+def _to_student(ticket_id: int, channel: str, meta: dict, kind: str, body: str, slot: ReplySlot | None) -> bool:
+    if slot is not None and slot.offer(body):
+        db.add_delivery(ticket_id, {"kind": kind, "channel": channel, "to": meta.get("contact"), "ok": True,
+                                    "via": "webhook reply"})
+        return True
+    return _deliver(ticket_id, channel, meta, kind, body)
+
+
+def process_incoming(channel: str, item: dict, slot: ReplySlot | None = None) -> dict:
     """Triage a message from a real channel and act on the decision."""
     meta = {k: v for k, v in item.items() if k != "text"}
     result = triage(item["text"], channel)
@@ -95,12 +127,13 @@ def process_incoming(channel: str, item: dict) -> dict:
 
     if result.decision.decision == "auto_reply" and result.draft:
         body = student_text(result.draft.reply, saved.id, ticket["result"]["citation_checks"], ticket["result"]["passages"])
-        if not _deliver(saved.id, channel, meta, "auto_reply", body):
+        if not _to_student(saved.id, channel, meta, "auto_reply", body, slot):
             # The student got nothing: put it in front of a human instead of showing "auto-replied".
             db.set_status(saved.id, "send_failed")
     else:
         self_harm = "self_harm" in result.precheck.flags
-        _deliver(saved.id, channel, meta, "acknowledgement", acknowledgement(saved.id, result.decision.team, self_harm))
+        _to_student(saved.id, channel, meta, "acknowledgement",
+                    acknowledgement(saved.id, result.decision.team, self_harm), slot)
         if SENIOR_SUPPORT_EMAIL and email_channel.enabled():
             _deliver(saved.id, channel, meta, "senior_alert", senior_alert(db.get_ticket(saved.id)), to=SENIOR_SUPPORT_EMAIL)
     return db.get_ticket(saved.id)
