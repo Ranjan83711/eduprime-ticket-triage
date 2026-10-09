@@ -4,8 +4,8 @@ An AI agent that reads incoming student support queries (email / WhatsApp / web 
 
 Built for the PW Central AI POD assignment, problem statement 6.
 
-- **Live demo:** _Hugging Face Space link: add after deploy_
-- **Azure deployment:** _App Service link: add after deploy_
+- **Live demo:** https://eduprime-ticket-triage.onrender.com (Render free tier: if it was idle, the first load can take ~1 min)
+- **Azure deployment:** _pending Azure for Students approval_
 - **Demo video:** _Loom link_
 
 | Inbox (escalated ticket) | Evaluation dashboard |
