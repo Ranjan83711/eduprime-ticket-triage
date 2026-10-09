@@ -9,6 +9,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from .config import DATA_DIR, DB_PATH
 from .schemas import TriageResult
 
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)  # e.g. /home/data on Azure's persistent storage
 engine = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread": False})
 
 
