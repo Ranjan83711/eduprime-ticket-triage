@@ -2,8 +2,9 @@
 import json
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, DateTime, Float, Integer, String, Text, create_engine, select
+from sqlalchemy import JSON, DateTime, Float, Integer, String, Text, create_engine, inspect, select, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlalchemy.orm.attributes import flag_modified
 
 from .config import DATA_DIR, DB_PATH
 from .schemas import TriageResult
@@ -30,6 +31,9 @@ class Ticket(Base):
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
     cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
     result: Mapped[dict] = mapped_column(JSON)
+    # Where the ticket came from and what was sent back:
+    # {"contact": "a@b.com", "subject": "...", "message_id": "...", "deliveries": [{...}]}
+    meta: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     def to_dict(self) -> dict:
         r = self.result
@@ -39,22 +43,41 @@ class Ticket(Base):
             "decision": self.decision, "team": self.team, "status": self.status, "final_reply": self.final_reply,
             "categories": cls.get("categories", []), "sentiment": cls.get("sentiment"),
             "confidence": cls.get("confidence"), "latency_ms": self.latency_ms, "cost_usd": self.cost_usd,
-            "result": r,
+            "meta": self.meta or {}, "result": r,
         }
 
 
 def init_db() -> None:
     Base.metadata.create_all(engine)
+    # Databases created before the meta column existed: add it (create_all doesn't alter tables).
+    if "meta" not in {c["name"] for c in inspect(engine).get_columns("tickets")}:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE tickets ADD COLUMN meta JSON"))
     seed_if_empty()
 
 
-def save_result(result: TriageResult) -> Ticket:
+def add_delivery(ticket_id: int, delivery: dict) -> None:
+    """Log an outbound message (auto-reply, acknowledgement, agent reply, alert) on the ticket."""
+    with Session(engine) as s:
+        t = s.get(Ticket, ticket_id)
+        if t is None:
+            return
+        meta = dict(t.meta or {})
+        meta["deliveries"] = [*meta.get("deliveries", []),
+                              {**delivery, "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}]
+        t.meta = meta
+        flag_modified(t, "meta")
+        s.commit()
+
+
+def save_result(result: TriageResult, meta: dict | None = None) -> Ticket:
     auto = result.decision.decision == "auto_reply"
     t = Ticket(
         channel=result.channel, text=result.ticket_text, decision=result.decision.decision,
         team=result.decision.team, status="auto_sent" if auto else "pending_review",
         final_reply=result.draft.reply if (auto and result.draft) else None,
         latency_ms=result.total_latency_ms, cost_usd=result.total_cost_usd, result=result.model_dump(mode="json"),
+        meta=meta,
     )
     with Session(engine, expire_on_commit=False) as s:
         s.add(t)

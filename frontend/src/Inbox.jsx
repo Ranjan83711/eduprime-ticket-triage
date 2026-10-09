@@ -46,6 +46,14 @@ export default function Inbox() {
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Tickets also arrive from the email inbox in the background, so refresh the list regularly.
+  useEffect(() => {
+    const id = setInterval(() => {
+      api.tickets().then(setTickets).catch(() => {})
+    }, 15000)
+    return () => clearInterval(id)
+  }, [])
+
   const submit = async (e) => {
     e.preventDefault()
     if (!text.trim() || busy) return
@@ -153,7 +161,7 @@ export default function Inbox() {
                   }}
                 >
                   <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--muted)' }}>
-                    <span>#{t.id} · {t.channel}</span>
+                    <span className="truncate">#{t.id} · {t.channel}{t.meta?.contact ? ` · ${t.meta.contact}` : ''}</span>
                     <span className="ml-auto">{timeAgo(t.created_at)}</span>
                   </div>
                   <p className="text-sm line-clamp-2">{t.text}</p>

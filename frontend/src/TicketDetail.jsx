@@ -2,6 +2,13 @@ import { Fragment, useState } from 'react'
 import { api } from './api'
 import { CATEGORY_LABEL, Chip, SENTIMENT, StatusChip, TEAM_LABEL } from './ui'
 
+const DELIVERY_LABEL = {
+  auto_reply: 'Auto-reply to student',
+  acknowledgement: 'Acknowledgement to student',
+  senior_alert: 'Alert to Senior Support',
+  agent_reply: 'Agent reply to student',
+}
+
 function Section({ title, children, right }) {
   return (
     <section className="card p-4">
@@ -94,7 +101,15 @@ export default function TicketDetail({ ticket, onUpdated }) {
         </ul>
       </div>
 
-      <Section title={`Ticket #${ticket.id} · ${ticket.channel}`}>
+      <Section
+        title={`Ticket #${ticket.id} · ${ticket.channel}`}
+        right={ticket.meta?.contact && (
+          <span className="text-xs" style={{ color: 'var(--ink-2)' }}>
+            from <b>{ticket.meta.name ? `${ticket.meta.name} · ` : ''}{ticket.meta.contact}</b>
+          </span>
+        )}
+      >
+        {ticket.meta?.subject && <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>Subject: {ticket.meta.subject}</p>}
         <p className="text-sm whitespace-pre-wrap">{ticket.text}</p>
         {(r.precheck.flags.length > 0 || r.precheck.order_ids.length > 0 || r.precheck.utr_numbers.length > 0) && (
           <div className="flex flex-wrap gap-1.5 mt-3">
@@ -177,10 +192,12 @@ export default function TicketDetail({ ticket, onUpdated }) {
                   className="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 cursor-pointer"
                   style={{ background: 'var(--accent)' }}
                 >
-                  {sending ? 'Sending…' : 'Approve & send'}
+                  {sending ? 'Sending…' : ticket.meta?.contact ? `Approve & send to ${ticket.meta.contact}` : 'Approve & send'}
                 </button>
                 <span className="text-xs" style={{ color: 'var(--muted)' }}>
-                  Edit if needed. Simulated send: it is logged, not emailed.
+                  {ticket.meta?.contact
+                    ? `Edit if needed. Sent by ${ticket.channel}; citation markers are removed for the student.`
+                    : 'Edit if needed. Manual ticket: the reply is logged, not sent anywhere.'}
                 </span>
               </div>
               {err && <p className="text-sm" style={{ color: 'var(--critical)' }}>{err}</p>}
@@ -220,6 +237,24 @@ export default function TicketDetail({ ticket, onUpdated }) {
               })}
             </ol>
           )}
+        </Section>
+      )}
+
+      {ticket.meta?.deliveries?.length > 0 && (
+        <Section title="Messages sent">
+          <ul className="flex flex-col gap-1.5 text-xs">
+            {ticket.meta.deliveries.map((d, i) => (
+              <li key={i} className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold" style={{ color: d.ok ? 'var(--good-text)' : 'var(--critical)' }}>
+                  {d.ok ? '✓ sent' : '✗ failed'}
+                </span>
+                <span>{DELIVERY_LABEL[d.kind] || d.kind}</span>
+                <span style={{ color: 'var(--ink-2)' }}>to {d.to} via {d.channel}</span>
+                <span className="ml-auto" style={{ color: 'var(--muted)' }}>{new Date(d.at).toLocaleTimeString()}</span>
+                {d.error && <span className="w-full" style={{ color: 'var(--critical)' }}>{d.error}</span>}
+              </li>
+            ))}
+          </ul>
         </Section>
       )}
 

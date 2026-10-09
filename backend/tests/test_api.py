@@ -17,6 +17,8 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app.db, "seed_if_empty", lambda: None)
     importlib.reload(app.main)
     monkeypatch.setattr(app.main, "db", app.db)
+    # Never poll a real inbox from tests, even when .env has email credentials.
+    monkeypatch.setattr(app.main.email_channel, "start_poller", lambda handle: False)
     import app.triage
     monkeypatch.setattr(app.triage, "CACHE_DIR", tmp_path / "cache")  # never pollute the real cache
     graph._graph = None

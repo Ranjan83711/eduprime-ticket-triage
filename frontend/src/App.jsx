@@ -56,6 +56,15 @@ export default function App() {
                 {health.models.classifier} · {health.models.drafter} · fallback {health.models.fallback}
               </span>
             )}
+            {health?.channels?.email?.enabled && (
+              <span
+                className="hidden sm:inline px-2 py-0.5 rounded-full"
+                style={{ background: health.channels.email.last_error ? 'var(--critical-soft)' : 'var(--good-soft)' }}
+                title={health.channels.email.last_error || `Checked ${health.channels.email.last_poll || 'starting…'}`}
+              >
+                ✉ {health.channels.email.address}{health.channels.email.last_error ? ' · error' : ''}
+              </span>
+            )}
             <span
               className="inline-block w-2 h-2 rounded-full"
               style={{ background: health?.status === 'ok' ? 'var(--good)' : 'var(--critical)' }}

@@ -41,3 +41,13 @@ MODEL_PRICES = {
 }
 
 PROMPT_VERSION = "v4"
+
+# Email channel (Gmail IMAP/SMTP). Disabled unless both are set.
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "").strip()
+EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").replace(" ", "")  # Google shows it with spaces
+IMAP_HOST = os.getenv("IMAP_HOST", "imap.gmail.com")
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+EMAIL_POLL_SECONDS = int(os.getenv("EMAIL_POLL_SECONDS", "30"))
+# Where "a human is needed" alerts go.
+SENIOR_SUPPORT_EMAIL = os.getenv("SENIOR_SUPPORT_EMAIL", "").strip()

@@ -10,9 +10,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db
+from . import db, email_channel, inbound
 from .config import (
     AUTO_REPLY_CONFIDENCE, BACKEND_DIR, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, ROOT_DIR,
+    SENIOR_SUPPORT_EMAIL,
 )
 from .kb import get_kb
 from .schemas import TicketIn
@@ -26,6 +27,7 @@ FRONTEND_DIST = ROOT_DIR / "frontend" / "dist"
 async def lifespan(app: FastAPI):
     db.init_db()
     get_kb()
+    email_channel.start_poller(lambda item: inbound.process_incoming("email", item))
     yield
 
 
@@ -45,6 +47,7 @@ def health():
         "keys": {k: bool(os.getenv(k)) for k in ("GOOGLE_API_KEY", "GROQ_API_KEY", "LANGSMITH_API_KEY")},
         "auto_reply_threshold": AUTO_REPLY_CONFIDENCE,
         "kb_passages": len(get_kb().passages),
+        "channels": {"email": {**email_channel.status, "senior_alerts_to": SENIOR_SUPPORT_EMAIL or None}},
     }
 
 
@@ -74,7 +77,9 @@ def resolve(ticket_id: int, body: ResolveIn):
     t = db.resolve_ticket(ticket_id, body.reply)
     if t is None:
         raise HTTPException(404, "ticket not found")
-    return t
+    # Tickets that came from a real channel get the agent's reply on that channel.
+    inbound.send_agent_reply(t, body.reply)
+    return db.get_ticket(ticket_id)
 
 
 @app.get("/api/kb")
