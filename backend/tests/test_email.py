@@ -46,6 +46,19 @@ def test_quoted_previous_message_is_dropped():
     assert email_channel.parse_message(raw_email(body=body))["text"].endswith("Still not received.")
 
 
+@pytest.mark.parametrize("signature", [
+    "\nSent from my iPhone", "\n\nSent from my Galaxy", "\n-- \nShubham Raj\n+91 98xxxxxx", "\nGet Outlook for Android",
+])
+def test_signatures_are_stripped(signature):
+    p = email_channel.parse_message(raw_email(subject="Query for PW", body="Any course left for GATE CSE 2027 ?" + signature))
+    assert p["text"] == "Query for PW\n\nAny course left for GATE CSE 2027 ?"
+
+
+def test_body_mentioning_sent_from_mid_text_is_kept():
+    body = "I paid via the link sent from my bank app.\nStill no access."
+    assert email_channel.parse_message(raw_email(subject="x", body=body))["text"].endswith("Still no access.")
+
+
 def test_html_only_email():
     m = EmailMessage()
     m["From"], m["Subject"] = "a@b.com", "Help"

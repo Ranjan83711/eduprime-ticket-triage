@@ -24,6 +24,13 @@ log = logging.getLogger("email_channel")
 MAX_PER_POLL = 10
 # Never reply to machines: prevents mail loops with auto-responders and bounces.
 NO_REPLY_SENDER = re.compile(r"mailer-daemon|postmaster|no-?reply|donotreply|notifications?@", re.I)
+SIGNATURE = re.compile(
+    r"(\n\s*--\s*\n.*$"                                   # standard "-- " signature separator
+    r"|\n\s*Sent from my \w[\w ]{0,30}$"                  # Sent from my iPhone / Android / Galaxy
+    r"|\n\s*Get Outlook for \w+.*$"
+    r"|\n\s*Sent from (Mail|Yahoo Mail|Outlook) for .*$)",
+    re.S | re.I,
+)
 QUOTED_REPLY = re.compile(r"(\n\s*On .{0,300}?wrote:\s*\n|\n-{2,}\s*Original Message\s*-{2,}|\n_{5,}\s*\nFrom:)", re.S | re.I)
 
 status = {"enabled": False, "address": None, "last_poll": None, "last_error": None, "processed": 0}
@@ -46,7 +53,8 @@ def clean_body(body: str) -> str:
     if m:
         body = ("\n" + body)[: m.start()]
     lines = [ln for ln in body.split("\n") if not ln.lstrip().startswith(">")]
-    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
+    body = SIGNATURE.sub("", "\n" + "\n".join(lines).rstrip())
+    return re.sub(r"\n{3,}", "\n\n", body).strip()
 
 
 def parse_message(raw: bytes) -> dict | None:
