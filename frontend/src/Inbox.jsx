@@ -147,29 +147,44 @@ export default function Inbox() {
         </form>
 
         <div className="card flex flex-col min-h-0">
-          <div className="p-3 border-b flex items-center gap-2" style={{ borderColor: 'var(--border)' }}>
-            <h2 className="font-semibold text-sm">Tickets</h2>
-            <span
-              className="inline-flex items-center gap-1 text-[11px]"
-              style={{ color: live ? 'var(--good-text)' : 'var(--critical)' }}
-              title={lastSync ? `Last updated ${lastSync.toLocaleTimeString()}` : 'Waiting for first update'}
-            >
-              <span className={`inline-block w-1.5 h-1.5 rounded-full ${live ? 'animate-pulse' : ''}`}
-                style={{ background: live ? 'var(--good)' : 'var(--critical)' }} />
-              {live ? 'Live' : 'Offline'}
-            </span>
-            {pending > 0 && <Chip fg="var(--critical)" bg="var(--critical-soft)">{pending} need a human</Chip>}
-            <div className="ml-auto flex gap-1">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setFilter(f.id)}
-                  className="text-xs px-2 py-1 rounded-md cursor-pointer whitespace-nowrap"
-                  style={filter === f.id ? { background: 'var(--accent-soft)' } : { color: 'var(--ink-2)' }}
-                >
-                  {f.label}
-                </button>
-              ))}
+          <div className="p-3 border-b flex flex-col gap-2.5" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold text-sm">Tickets</h2>
+              <span
+                className="inline-flex items-center gap-1 text-[11px]"
+                style={{ color: live ? 'var(--good-text)' : 'var(--critical)' }}
+                title={lastSync ? `Last updated ${lastSync.toLocaleTimeString()}` : 'Waiting for first update'}
+              >
+                <span className={`inline-block w-1.5 h-1.5 rounded-full ${live ? 'animate-pulse' : ''}`}
+                  style={{ background: live ? 'var(--good)' : 'var(--critical)' }} />
+                {live ? 'Live' : 'Offline'}
+              </span>
+              {pending > 0 && (
+                <span className="ml-auto">
+                  <Chip fg="var(--critical)" bg="var(--critical-soft)">{pending} need a human</Chip>
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-1 p-1 rounded-lg" style={{ background: 'var(--surface-2)' }} role="tablist">
+              {FILTERS.map((f) => {
+                const count = f.id === 'all' ? tickets.length : tickets.filter((t) => t.status === f.id).length
+                const active = filter === f.id
+                return (
+                  <button
+                    key={f.id}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setFilter(f.id)}
+                    className="text-xs py-1.5 rounded-md cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5"
+                    style={active
+                      ? { background: 'var(--surface)', color: 'var(--ink)', boxShadow: '0 1px 2px rgba(0,0,0,0.08)', fontWeight: 600 }
+                      : { color: 'var(--ink-2)' }}
+                  >
+                    {f.label}
+                    <span className="tabular text-[10px]" style={{ color: 'var(--muted)' }}>{count}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
           <ul className="overflow-y-auto lg:max-h-[calc(100vh-470px)] lg:min-h-[240px]">
