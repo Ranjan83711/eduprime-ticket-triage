@@ -125,6 +125,12 @@ def test_bad_citation_or_insufficient_kb_escalates():
     assert decide(PrecheckResult(), make_cls(), d, verify_citations(d, get_kb())).decision == "escalate"
 
 
+def test_no_citations_ok_only_when_no_issue_raised():
+    thanks = Draft(reply="Glad it's resolved!", citations=[], kb_sufficient=True)
+    assert decide(PrecheckResult(), make_cls(categories=["other"], issues=[]), thanks, []).decision == "auto_reply"
+    assert decide(PrecheckResult(), make_cls(issues=["refund timeline"]), thanks, []).decision == "escalate"
+
+
 def test_threshold_is_tunable():
     d = good_draft()
     checks = verify_citations(d, get_kb())

@@ -15,13 +15,14 @@ if not os.getenv("LANGSMITH_API_KEY"):
 DATA_DIR = BACKEND_DIR / "data"
 KB_DIR = DATA_DIR / "kb"
 TEST_SET_PATH = DATA_DIR / "tickets" / "test_set.json"
-CACHE_DIR = BACKEND_DIR / ".cache"
+CACHE_DIR = Path(os.getenv("CACHE_DIR", BACKEND_DIR / ".cache"))
 DB_PATH = Path(os.getenv("DB_PATH", BACKEND_DIR / "triage.db"))
 
-# Models: a small fast model for classification, a stronger one for writing replies,
-# and a model on a different provider as fallback when Gemini rate-limits.
+# Models: Flash-Lite for both steps, and a model on a different provider as fallback when Gemini
+# rate-limits. gemini-3.5-flash was tried for drafting but its free tier allows only 20 requests/day,
+# so most drafts silently fell back to Groq; Flash-Lite already produced 100% verified citations.
 CLASSIFIER_MODEL = os.getenv("CLASSIFIER_MODEL", "gemini-3.5-flash-lite")
-DRAFTER_MODEL = os.getenv("DRAFTER_MODEL", "gemini-3.5-flash")
+DRAFTER_MODEL = os.getenv("DRAFTER_MODEL", "gemini-3.5-flash-lite")
 FALLBACK_MODEL = os.getenv("FALLBACK_MODEL", "openai/gpt-oss-120b")
 
 # Below this classifier confidence the ticket goes to a human.
@@ -39,4 +40,4 @@ MODEL_PRICES = {
     "openai/gpt-oss-120b": (0.15, 0.75),
 }
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v3"

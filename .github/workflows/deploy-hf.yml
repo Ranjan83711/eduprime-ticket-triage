@@ -1,0 +1,30 @@
+# Mirror the repo to a Hugging Face Docker Space. HF builds the Dockerfile itself.
+# Needs repo secret HF_TOKEN (write token) and repo variable HF_SPACE (e.g. "username/eduprime-ticket-triage").
+name: Deploy to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.HF_SPACE != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add Space config header to README
+        # HF reads Space settings from YAML front matter in README.md; GitHub's README stays clean.
+        run: |
+          printf -- '---\ntitle: EduPrime Ticket Triage\nemoji: 🎫\ncolorFrom: blue\ncolorTo: green\nsdk: docker\napp_port: 7860\npinned: false\n---\n\n' | cat - README.md > README.hf.md
+          mv README.hf.md README.md
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git commit -am "Add Hugging Face Space config"
+      - name: Push to Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git push --force "https://user:${HF_TOKEN}@huggingface.co/spaces/${{ vars.HF_SPACE }}" HEAD:main

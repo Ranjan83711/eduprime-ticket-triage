@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Design tokens. Chart colours follow the validated reference palette (blue / orange / aqua for
+   series, a blue sequential ramp, fixed status colours). Dark mode has its own steps. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f2f1ed;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --border: rgba(11, 11, 11, 0.1);
+  --accent: #2a78d6;
+  --accent-soft: #cde2fb;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --good: #0ca30c;
+  --good-text: #006300;
+  --good-soft: #e3f4e3;
+  --warn: #fab219;
+  --warn-soft: #fdf1d6;
+  --critical: #d03b3b;
+  --critical-soft: #fbe4e4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #242422;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #3987e5;
+    --accent-soft: #184f95;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --good-text: #0ca30c;
+    --good-soft: #15301a;
+    --warn-soft: #3a2f12;
+    --critical-soft: #3b1c1c;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #242422;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --grid: #2c2c2a;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #3987e5;
+  --accent-soft: #184f95;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --good-text: #0ca30c;
+  --good-soft: #15301a;
+  --warn-soft: #3a2f12;
+  --critical-soft: #3b1c1c;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.tabular { font-variant-numeric: tabular-nums; }

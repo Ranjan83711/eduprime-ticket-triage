@@ -28,13 +28,14 @@ class Classification(BaseModel):
         "legal action or consumer court, or sounds distressed."
     )
     requires_human_action: bool = Field(
-        description="True if resolving the ticket needs a staff member to do something in internal systems "
-        "(approve or check a refund, trace a payment, manually activate a batch, process a batch change, "
-        "replace books, investigate a bug that persists after troubleshooting, answer an academic question, "
-        "look up a case status). False if the student can resolve it with information or self-serve steps."
+        description="True only if a staff member must do something in internal systems to resolve the ticket. "
+        "False if a policy answer, a timeline, or self-serve steps resolve it. See the rules in the instructions."
     )
     language: Literal["en", "hi", "hinglish"]
-    issues: list[str] = Field(description="Each distinct issue the student raises, as a short English phrase.")
+    issues: list[str] = Field(
+        description="Each distinct issue the student raises, as a short English phrase. Empty if the message "
+        "raises no issue (a greeting, thanks, or 'my issue is resolved')."
+    )
     search_query: str = Field(
         description="A short English search query to find the relevant help-centre policy (translate Hinglish/Hindi)."
     )

@@ -28,6 +28,7 @@ from app.triage import CACHE_DIR, _cache_key, triage
 
 CATEGORIES = ["refund", "payment", "batch_access", "technical", "academic_doubt", "other"]
 REPORT_PATH = BACKEND_DIR / "eval" / "report.json"
+HOLDOUT_PATH = DATA_DIR / "tickets" / "holdout_set.json"
 SEED_IDS = ["T01", "T08", "T12", "T19", "T28", "T29", "T36", "T38", "T51", "T57", "T58", "T60"]
 
 
@@ -66,8 +67,8 @@ def pct(values: list[float], q: float) -> float:
     return s[min(len(s) - 1, int(round(q * (len(s) - 1))))]
 
 
-def run(use_cache: bool, delay: float, limit: int | None) -> dict:
-    tickets = json.loads(TEST_SET_PATH.read_text(encoding="utf-8"))[:limit]
+def run(use_cache: bool, delay: float, limit: int | None, path=TEST_SET_PATH, write: bool = True) -> dict:
+    tickets = json.loads(path.read_text(encoding="utf-8"))[:limit]
     results: list[TriageResult] = []
     fresh_latencies = []
     for i, t in enumerate(tickets, 1):
@@ -169,6 +170,8 @@ def run(use_cache: bool, delay: float, limit: int | None) -> dict:
             for t, r in zip(tickets, results)
         ],
     }
+    if not write:
+        return report
     REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     seed = [r.model_dump(mode="json") for t, r in zip(tickets, results) if t["id"] in SEED_IDS and not r.error]
@@ -179,10 +182,20 @@ def run(use_cache: bool, delay: float, limit: int | None) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-cache", action="store_true")
-    ap.add_argument("--delay", type=float, default=4.0)
+    ap.add_argument("--delay", type=float, default=6.0)
     ap.add_argument("--limit", type=int, default=None)
     args = ap.parse_args()
     rep = run(use_cache=not args.no_cache, delay=args.delay, limit=args.limit)
+    # Held-out tickets were written after prompt tuning on the main set and never used to tune it,
+    # so they show whether the numbers above generalise.
+    print("\n--- held-out set ---")
+    ho = run(use_cache=not args.no_cache, delay=args.delay, limit=None, path=HOLDOUT_PATH, write=False)
+    rep["holdout"] = {"n_tickets": ho["n_tickets"], "n_errors": ho["n_errors"],
+                      "classification": {k: ho["classification"][k] for k in ("primary_accuracy", "micro_f1", "exact_set_match")},
+                      "escalation": ho["escalation"], "citations": ho["citations"], "sentiment": ho["sentiment"],
+                      "tickets": ho["tickets"]}
+    REPORT_PATH.write_text(json.dumps(rep, indent=2), encoding="utf-8")
+    rep["n_errors"] += ho["n_errors"]
     c, e = rep["classification"], rep["escalation"]
     print("\n=== Summary ===")
     print(f"tickets={rep['n_tickets']} errors={rep['n_errors']}")
@@ -191,6 +204,8 @@ def main():
           f"unsafe_auto={e['unsafe_auto_replies']} unnecessary_esc={e['unnecessary_escalations']}")
     print(f"sentiment: {rep['sentiment']}  citations: {rep['citations']}")
     print(f"performance: {rep['performance']}")
+    h = rep["holdout"]
+    print(f"held-out: category={h['classification']['primary_accuracy']} escalation={h['escalation']}")
     print(f"report -> {REPORT_PATH}")
     sys.exit(1 if rep["n_errors"] else 0)
 

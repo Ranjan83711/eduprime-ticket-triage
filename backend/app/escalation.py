@@ -62,7 +62,8 @@ def decide(
         bad = [ch for ch in citation_checks if not ch.valid]
         if bad:
             reasons.append(f"{len(bad)} citation(s) failed verification")
-        if not draft.citations:
+        # A thank-you needs no policy, so no citation; anything with an actual issue must be grounded.
+        if not draft.citations and c.issues:
             reasons.append("reply has no citations")
 
     if not reasons:

@@ -29,8 +29,17 @@ def _gemini(model: str) -> ChatGoogleGenerativeAI:
 
 def _groq() -> ChatGroq:
     # gpt-oss is a reasoning model; low effort keeps latency and tokens down for these simple tasks.
-    return ChatGroq(model_name=FALLBACK_MODEL, temperature=0, max_retries=1, request_timeout=TIMEOUT_S,
+    # Groq's free tier allows only 8k tokens/minute, so let its client wait out short rate limits.
+    return ChatGroq(model_name=FALLBACK_MODEL, temperature=0, max_retries=3, request_timeout=TIMEOUT_S,
                     reasoning_effort="low")
+
+
+def _is_rate_limit(e: Exception) -> bool:
+    s = f"{type(e).__name__} {e}"
+    return "429" in s or "RESOURCE_EXHAUSTED" in s or "RateLimit" in s
+
+
+RATE_LIMIT_WAITS_S = (10, 25)  # both providers rate-limited: free-tier limits are per minute, so wait it out
 
 
 @lru_cache(maxsize=None)
@@ -51,7 +60,14 @@ def _cost(model: str, inp: int, out: int) -> float:
 
 def call_structured(step: str, role: str, schema: type[BaseModel], messages: list[BaseMessage]):
     start = time.perf_counter()
-    out = structured_chain(role, schema).invoke(messages)
+    for wait in (*RATE_LIMIT_WAITS_S, None):
+        try:
+            out = structured_chain(role, schema).invoke(messages)
+            break
+        except Exception as e:
+            if wait is None or not _is_rate_limit(e):
+                raise
+            time.sleep(wait)
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     raw = out["raw"]
