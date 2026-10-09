@@ -137,6 +137,9 @@ async def meta_webhook(request: Request, background: BackgroundTasks):
         raise HTTPException(404, "Meta WhatsApp not configured")
     raw = await request.body()
     if not meta_whatsapp.valid_signature(raw, request.headers.get("x-hub-signature-256", "")):
+        # Counted so a misconfigured app secret shows up in /api/health instead of failing silently.
+        meta_whatsapp.status["rejected_signature"] = meta_whatsapp.status.get("rejected_signature", 0) + 1
+        meta_whatsapp.status["last_error"] = "invalid signature: check META_APP_SECRET"
         raise HTTPException(403, "invalid signature")
     try:
         payload = json.loads(raw)
