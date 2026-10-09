@@ -40,4 +40,4 @@ MODEL_PRICES = {
     "openai/gpt-oss-120b": (0.15, 0.75),
 }
 
-PROMPT_VERSION = "v3"
+PROMPT_VERSION = "v4"

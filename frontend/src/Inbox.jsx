@@ -127,7 +127,7 @@ export default function Inbox() {
                 <button
                   key={f.id}
                   onClick={() => setFilter(f.id)}
-                  className="text-xs px-2 py-1 rounded-md cursor-pointer"
+                  className="text-xs px-2 py-1 rounded-md cursor-pointer whitespace-nowrap"
                   style={filter === f.id ? { background: 'var(--accent-soft)' } : { color: 'var(--ink-2)' }}
                 >
                   {f.label}

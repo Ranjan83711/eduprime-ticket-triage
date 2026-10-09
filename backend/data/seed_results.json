@@ -12,13 +12,13 @@
    "categories": [
     "refund"
    ],
-   "confidence": 0.95,
+   "confidence": 1.0,
    "sentiment": "calm",
    "at_risk": false,
    "requires_human_action": false,
    "language": "en",
    "issues": [
-    "asking about refund policy and eligibility"
+    "Inquiring about refund policy and eligibility"
    ],
    "search_query": "refund policy and timeline"
   },
@@ -53,7 +53,7 @@
    }
   ],
   "draft": {
-   "reply": "Hello! A full refund is available if the request is raised within 7 days of purchase and the student has watched fewer than 3 hours of lectures in the batch [1]. Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID [2]. Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days [3].",
+   "reply": "Hello! You can receive a full refund if you submit your request within 7 days of buying the batch and have viewed less than 3 hours of lectures [1]. You can request this directly through the app under Profile > My Purchases > Request Refund, or by emailing support with your registered mobile number and order ID [2]. Once approved, your money will go back to your original payment method in 5 to 7 working days [3].",
    "citations": [
     {
      "marker": 1,
@@ -108,23 +108,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 699,
-    "output_tokens": 66,
-    "latency_ms": 4981,
-    "cost_usd": 0.000375,
+    "output_tokens": 98,
+    "latency_ms": 5514,
+    "cost_usd": 0.000455,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 684,
-    "output_tokens": 331,
-    "latency_ms": 5228,
+    "input_tokens": 726,
+    "output_tokens": 326,
+    "latency_ms": 4367,
     "cost_usd": 0.001033,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 10431,
-  "total_cost_usd": 0.001408,
+  "total_latency_ms": 10078,
+  "total_cost_usd": 0.001488,
   "error": null
  },
  {
@@ -149,10 +149,10 @@
    "requires_human_action": true,
    "language": "en",
    "issues": [
-    "No reply for refund request after three attempts",
-    "Threatening consumer court and Twitter"
+    "Refund request unanswered multiple times",
+    "Threat of posting on Twitter and consumer court"
    ],
-   "search_query": "refund status pending escalation"
+   "search_query": "refund status and escalation"
   },
   "passages": [
    {
@@ -167,14 +167,7 @@
     "doc": "refund_policy",
     "title": "Refund Policy > Eligibility for a full refund",
     "text": "A full refund is available if the request is raised within 7 days of purchase and the student has watched fewer than 3 hours of lectures in the batch. Requests raised after 7 days from the date of purchase are not eligible for a refund, except for duplicate payments or a confirmed technical failure on EduPrime's side.",
-    "score": 6.17
-   },
-   {
-    "id": "account_management#account-deletion",
-    "doc": "account_management",
-    "title": "Account Management > Account deletion",
-    "text": "Students can request account deletion under Profile > Settings > Delete Account. The account and its data are permanently deleted after 30 days, and purchased batches cannot be restored after deletion.",
-    "score": 3.919
+    "score": 5.35
    },
    {
     "id": "refund_policy#refund-timelines",
@@ -185,12 +178,17 @@
    }
   ],
   "draft": {
-   "reply": "Hello! We are truly sorry for the delay and frustration regarding your refund request. Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own [1]. We have passed your case to the right team for review. Thank you for your patience!",
+   "reply": "Hi! I am really sorry for the delay and the frustration this has caused you. Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own [1]. I have passed your case to the right team so they can look into your refund right away. Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days [3].",
    "citations": [
     {
      "marker": 1,
      "passage_id": "refund_policy#how-to-request-a-refund",
      "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own."
+    },
+    {
+     "marker": 3,
+     "passage_id": "refund_policy#refund-timelines",
+     "quote": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days."
     }
    ],
    "kb_sufficient": true
@@ -200,6 +198,13 @@
     "marker": 1,
     "passage_id": "refund_policy#how-to-request-a-refund",
     "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
+    "valid": true,
+    "reason": ""
+   },
+   {
+    "marker": 3,
+    "passage_id": "refund_policy#refund-timelines",
+    "quote": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days.",
     "valid": true,
     "reason": ""
    }
@@ -220,23 +225,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 695,
-    "output_tokens": 60,
-    "latency_ms": 1113,
-    "cost_usd": 0.000358,
+    "output_tokens": 106,
+    "latency_ms": 1804,
+    "cost_usd": 0.000474,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 670,
-    "output_tokens": 148,
-    "latency_ms": 1751,
-    "cost_usd": 0.000571,
+    "input_tokens": 647,
+    "output_tokens": 238,
+    "latency_ms": 1591,
+    "cost_usd": 0.000789,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 2895,
-  "total_cost_usd": 0.000929,
+  "total_latency_ms": 3510,
+  "total_cost_usd": 0.001263,
   "error": null
  },
  {
@@ -263,7 +268,7 @@
    "issues": [
     "Payment successful but batch not visible after 5 hours"
    ],
-   "search_query": "payment successful batch not visible after 2 hours"
+   "search_query": "payment successful batch not visible order id"
   },
   "passages": [
    {
@@ -271,30 +276,35 @@
     "doc": "payment_issues",
     "title": "Payment Issues > Money debited but batch not activated",
     "text": "If the payment was successful but the batch is not visible after 2 hours, the student should share the order ID or UTR number with support. These cases are escalated to the Billing team, who manually activate the batch after verifying the payment.",
-    "score": 12.024
+    "score": 11.396
    },
    {
     "id": "batch_access#batch-not-visible-after-purchase",
     "doc": "batch_access",
     "title": "Batch Access > Batch not visible after purchase",
     "text": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase. If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID.",
-    "score": 11.22
+    "score": 10.625
    },
    {
     "id": "batch_access#activation-after-purchase",
     "doc": "batch_access",
     "title": "Batch Access > Activation after purchase",
     "text": "A batch is usually activated instantly after a successful payment, and in rare cases it can take up to 2 hours. The batch appears under My Batches on the app and the website.",
-    "score": 9.591
+    "score": 7.259
    }
   ],
   "draft": {
-   "reply": "Arre yaar, no need to worry! Arey dost, if the payment was successful but the batch is not visible after 2 hours, the student should share the order ID or UTR number with support [1]. Since you shared your order ID EP-60231, your case has been passed to the right team for verification and manual activation. A support specialist will follow up on that part.",
+   "reply": "Hi! Agar aapka payment cut gaya hai aur 2 ghante se zyada ho gaye hain, toh please ensure karein ki aapne wohi mobile number use kiya hai aur ek baar log out karke dubara log in karke dekhein [2]. Agar batch phir bhi show na ho, toh kyunki aapne Order ID EP-60231 share kar di hai, humne aapka case Billing team ko escalate kar diya hai jo payment verify karke batch manually activate kar denge [1].",
    "citations": [
     {
      "marker": 1,
      "passage_id": "payment_issues#money-debited-but-batch-not-activated",
      "quote": "If the payment was successful but the batch is not visible after 2 hours, the student should share the order ID or UTR number with support."
+    },
+    {
+     "marker": 2,
+     "passage_id": "batch_access#batch-not-visible-after-purchase",
+     "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase."
     }
    ],
    "kb_sufficient": true
@@ -304,6 +314,13 @@
     "marker": 1,
     "passage_id": "payment_issues#money-debited-but-batch-not-activated",
     "quote": "If the payment was successful but the batch is not visible after 2 hours, the student should share the order ID or UTR number with support.",
+    "valid": true,
+    "reason": ""
+   },
+   {
+    "marker": 2,
+    "passage_id": "batch_access#batch-not-visible-after-purchase",
+    "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase.",
     "valid": true,
     "reason": ""
    }
@@ -320,23 +337,145 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 696,
-    "output_tokens": 114,
-    "latency_ms": 1074,
-    "cost_usd": 0.000494,
+    "output_tokens": 112,
+    "latency_ms": 1801,
+    "cost_usd": 0.000489,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 599,
-    "output_tokens": 186,
-    "latency_ms": 1300,
-    "cost_usd": 0.000645,
+    "input_tokens": 639,
+    "output_tokens": 287,
+    "latency_ms": 2318,
+    "cost_usd": 0.000909,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 2433,
-  "total_cost_usd": 0.001139,
+  "total_latency_ms": 4381,
+  "total_cost_usd": 0.001398,
+  "error": null
+ },
+ {
+  "ticket_text": "I just bought the batch 10 minutes ago and it is not showing in My Batches.",
+  "channel": "whatsapp",
+  "precheck": {
+   "flags": [],
+   "critical": false,
+   "order_ids": [],
+   "utr_numbers": []
+  },
+  "classification": {
+   "categories": [
+    "batch_access",
+    "payment"
+   ],
+   "confidence": 0.95,
+   "sentiment": "calm",
+   "at_risk": false,
+   "requires_human_action": false,
+   "language": "en",
+   "issues": [
+    "batch not visible after purchase"
+   ],
+   "search_query": "batch not visible after purchase within two hours"
+  },
+  "passages": [
+   {
+    "id": "batch_access#batch-not-visible-after-purchase",
+    "doc": "batch_access",
+    "title": "Batch Access > Batch not visible after purchase",
+    "text": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase. If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID.",
+    "score": 8.496
+   },
+   {
+    "id": "payment_issues#money-debited-but-batch-not-activated",
+    "doc": "payment_issues",
+    "title": "Payment Issues > Money debited but batch not activated",
+    "text": "If the payment was successful but the batch is not visible after 2 hours, the student should share the order ID or UTR number with support. These cases are escalated to the Billing team, who manually activate the batch after verifying the payment.",
+    "score": 5.527
+   },
+   {
+    "id": "batch_access#activation-after-purchase",
+    "doc": "batch_access",
+    "title": "Batch Access > Activation after purchase",
+    "text": "A batch is usually activated instantly after a successful payment, and in rare cases it can take up to 2 hours. The batch appears under My Batches on the app and the website.",
+    "score": 5.116
+   }
+  ],
+  "draft": {
+   "reply": "Hello! It can sometimes take up to 2 hours for your batch to become active after a successful payment [3]. To help get things working, please try logging out and then logging back in using the exact same mobile number you used for your purchase [1]. If the batch is still missing after 2 hours, please let us know your order ID so our support team can assist you further [1].",
+   "citations": [
+    {
+     "marker": 1,
+     "passage_id": "batch_access#batch-not-visible-after-purchase",
+     "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase."
+    },
+    {
+     "marker": 2,
+     "passage_id": "batch_access#batch-not-visible-after-purchase",
+     "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID."
+    },
+    {
+     "marker": 3,
+     "passage_id": "batch_access#activation-after-purchase",
+     "quote": "A batch is usually activated instantly after a successful payment, and in rare cases it can take up to 2 hours."
+    }
+   ],
+   "kb_sufficient": true
+  },
+  "citation_checks": [
+   {
+    "marker": 1,
+    "passage_id": "batch_access#batch-not-visible-after-purchase",
+    "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase.",
+    "valid": true,
+    "reason": ""
+   },
+   {
+    "marker": 2,
+    "passage_id": "batch_access#batch-not-visible-after-purchase",
+    "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID.",
+    "valid": true,
+    "reason": ""
+   },
+   {
+    "marker": 3,
+    "passage_id": "batch_access#activation-after-purchase",
+    "quote": "A batch is usually activated instantly after a successful payment, and in rare cases it can take up to 2 hours.",
+    "valid": true,
+    "reason": ""
+   }
+  ],
+  "decision": {
+   "decision": "auto_reply",
+   "team": null,
+   "reasons": [
+    "all checks passed"
+   ]
+  },
+  "llm_calls": [
+   {
+    "step": "classify",
+    "model": "gemini-3.5-flash-lite",
+    "input_tokens": 685,
+    "output_tokens": 107,
+    "latency_ms": 2060,
+    "cost_usd": 0.000473,
+    "fallback_used": false
+   },
+   {
+    "step": "draft",
+    "model": "gemini-3.5-flash-lite",
+    "input_tokens": 623,
+    "output_tokens": 321,
+    "latency_ms": 1836,
+    "cost_usd": 0.000989,
+    "fallback_used": false
+   }
+  ],
+  "total_latency_ms": 3974,
+  "total_cost_usd": 0.001462,
   "error": null
  },
  {
@@ -358,9 +497,9 @@
    "requires_human_action": false,
    "language": "en",
    "issues": [
-    "Video buffering even at 480p"
+    "Videos buffering constantly at 480p"
    ],
-   "search_query": "video buffering troubleshooting"
+   "search_query": "video buffering troubleshooting slow internet"
   },
   "passages": [
    {
@@ -369,6 +508,13 @@
     "title": "App and Technical Troubleshooting > Videos buffering or not playing",
     "text": "If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version. Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues.",
     "score": 8.503
+   },
+   {
+    "id": "offline_downloads#how-downloads-work",
+    "doc": "offline_downloads",
+    "title": "Offline Downloads > How downloads work",
+    "text": "Lectures can be downloaded for offline viewing inside the EduPrime mobile app only. Downloaded videos can only be played inside the app and cannot be copied or shared.",
+    "score": 3.101
    },
    {
     "id": "app_troubleshooting#supported-devices",
@@ -386,7 +532,7 @@
    }
   ],
   "draft": {
-   "reply": "Hello! I am sorry to hear that your lectures are buffering. If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version [1]. Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues [1].",
+   "reply": "Hello! I am sorry to hear that your lectures are buffering, and we want to help you get back to studying smoothly. To fix this, you can try lowering your video quality, moving to a stable Wi-Fi network, and making sure your app is updated [1]. Clearing your app cache can also resolve these playback problems [1]. If the issue continues, please let us know!",
    "citations": [
     {
      "marker": 1,
@@ -417,23 +563,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 687,
-    "output_tokens": 99,
-    "latency_ms": 995,
-    "cost_usd": 0.000454,
+    "output_tokens": 102,
+    "latency_ms": 1661,
+    "cost_usd": 0.000461,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 569,
-    "output_tokens": 181,
-    "latency_ms": 1325,
-    "cost_usd": 0.000623,
+    "input_tokens": 671,
+    "output_tokens": 184,
+    "latency_ms": 1887,
+    "cost_usd": 0.000661,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 2353,
-  "total_cost_usd": 0.001077,
+  "total_latency_ms": 3637,
+  "total_cost_usd": 0.001122,
   "error": null
  },
  {
@@ -449,15 +595,15 @@
    "categories": [
     "technical"
    ],
-   "confidence": 0.96,
-   "sentiment": "frustrated",
+   "confidence": 0.95,
+   "sentiment": "calm",
    "at_risk": false,
    "requires_human_action": false,
-   "language": "hi",
+   "language": "hinglish",
    "issues": [
     "OTP not received for login"
    ],
-   "search_query": "login OTP not received"
+   "search_query": "OTP not received for login troubleshooting"
   },
   "passages": [
    {
@@ -465,7 +611,7 @@
     "doc": "app_troubleshooting",
     "title": "App and Technical Troubleshooting > OTP not received during login",
     "text": "If the login OTP does not arrive, the student should wait 60 seconds before requesting a new one and check that DND or SMS blocking is not enabled. Students can also choose the \"Get OTP on email\" option on the login screen.",
-    "score": 12.547
+    "score": 14.209
    },
    {
     "id": "doubt_support#doubts-sent-to-the-support-team",
@@ -483,17 +629,12 @@
    }
   ],
   "draft": {
-   "reply": "Hi there! If you didn\u2019t get the login OTP, please wait about 60 seconds and then request a new one, making sure DND or SMS blocking isn\u2019t turned on [1]. You can also tap \u201cGet OTP on email\u201d on the login screen to receive it via email [2]. Let us know if you still face issues.",
+   "reply": "Hello! Agar apko login ke liye OTP nahi aa raha, toh kripya naya OTP mangane se pehle 60 seconds ka wait karein aur check karein ki aapke phone par koi DND ya SMS blocking active toh nahi hai [1]. Aap login screen par diye gaye \"Get OTP on email\" option ka bhi use kar sakte hain [1].",
    "citations": [
     {
      "marker": 1,
      "passage_id": "app_troubleshooting#otp-not-received-during-login",
      "quote": "If the login OTP does not arrive, the student should wait 60 seconds before requesting a new one and check that DND or SMS blocking is not enabled."
-    },
-    {
-     "marker": 2,
-     "passage_id": "app_troubleshooting#otp-not-received-during-login",
-     "quote": "Students can also choose the \"Get OTP on email\" option on the login screen."
     }
    ],
    "kb_sufficient": true
@@ -503,13 +644,6 @@
     "marker": 1,
     "passage_id": "app_troubleshooting#otp-not-received-during-login",
     "quote": "If the login OTP does not arrive, the student should wait 60 seconds before requesting a new one and check that DND or SMS blocking is not enabled.",
-    "valid": true,
-    "reason": ""
-   },
-   {
-    "marker": 2,
-    "passage_id": "app_troubleshooting#otp-not-received-during-login",
-    "quote": "Students can also choose the \"Get OTP on email\" option on the login screen.",
     "valid": true,
     "reason": ""
    }
@@ -524,25 +658,25 @@
   "llm_calls": [
    {
     "step": "classify",
-    "model": "openai/gpt-oss-120b",
-    "input_tokens": 1025,
-    "output_tokens": 150,
-    "latency_ms": 2284,
-    "cost_usd": 0.000266,
-    "fallback_used": true
+    "model": "gemini-3.5-flash-lite",
+    "input_tokens": 680,
+    "output_tokens": 68,
+    "latency_ms": 1319,
+    "cost_usd": 0.000374,
+    "fallback_used": false
    },
    {
     "step": "draft",
-    "model": "openai/gpt-oss-120b",
-    "input_tokens": 779,
-    "output_tokens": 259,
-    "latency_ms": 2139,
-    "cost_usd": 0.000311,
-    "fallback_used": true
+    "model": "gemini-3.5-flash-lite",
+    "input_tokens": 614,
+    "output_tokens": 180,
+    "latency_ms": 1688,
+    "cost_usd": 0.000634,
+    "fallback_used": false
    }
   ],
-  "total_latency_ms": 4456,
-  "total_cost_usd": 0.000577,
+  "total_latency_ms": 3136,
+  "total_cost_usd": 0.001008,
   "error": null
  },
  {
@@ -557,7 +691,7 @@
   "classification": {
    "categories": [
     "technical",
-    "payment",
+    "batch_access",
     "refund"
    ],
    "confidence": 0.95,
@@ -567,11 +701,18 @@
    "language": "en",
    "issues": [
     "videos not loading for a week",
-    "demand refund due to app failure"
+    "demanding refund due to app failure"
    ],
-   "search_query": "app crashing video not loading refund policy"
+   "search_query": "app not working videos not loading refund policy"
   },
   "passages": [
+   {
+    "id": "refund_policy#refund-timelines",
+    "doc": "refund_policy",
+    "title": "Refund Policy > Refund timelines",
+    "text": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days. Refunds cannot be transferred to a different bank account, UPI ID or card than the one used for payment.",
+    "score": 7.25
+   },
    {
     "id": "refund_policy#how-to-request-a-refund",
     "doc": "refund_policy",
@@ -585,13 +726,6 @@
     "title": "Refund Policy > Eligibility for a full refund",
     "text": "A full refund is available if the request is raised within 7 days of purchase and the student has watched fewer than 3 hours of lectures in the batch. Requests raised after 7 days from the date of purchase are not eligible for a refund, except for duplicate payments or a confirmed technical failure on EduPrime's side.",
     "score": 6.071
-   },
-   {
-    "id": "refund_policy#refund-timelines",
-    "doc": "refund_policy",
-    "title": "Refund Policy > Refund timelines",
-    "text": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days. Refunds cannot be transferred to a different bank account, UPI ID or card than the one used for payment.",
-    "score": 5.144
    },
    {
     "id": "refund_policy#deductions-for-books-and-study-material",
@@ -616,7 +750,7 @@
    }
   ],
   "draft": {
-   "reply": "Hello! We are sorry to hear about the trouble with your videos. If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version [1]. Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues [2]. Regarding your refund request, every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own [3]. Your case has been passed to the right team for review.",
+   "reply": "Hello! I am sorry to hear that you are facing issues with video playback. To help fix the buffering, please try lowering the video quality, switching to a stable Wi-Fi network, and clearing your app cache from your phone settings [1]. Regarding your refund request, our support assistants cannot approve refunds directly [2]. Your case has been forwarded to the Billing team for review and approval [3].",
    "citations": [
     {
      "marker": 1,
@@ -625,8 +759,8 @@
     },
     {
      "marker": 2,
-     "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-     "quote": "Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues."
+     "passage_id": "refund_policy#how-to-request-a-refund",
+     "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own."
     },
     {
      "marker": 3,
@@ -646,8 +780,8 @@
    },
    {
     "marker": 2,
-    "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-    "quote": "Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues.",
+    "passage_id": "refund_policy#how-to-request-a-refund",
+    "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
     "valid": true,
     "reason": ""
    },
@@ -673,23 +807,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 700,
-    "output_tokens": 82,
-    "latency_ms": 1808,
-    "cost_usd": 0.000415,
+    "output_tokens": 123,
+    "latency_ms": 1940,
+    "cost_usd": 0.000517,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 851,
-    "output_tokens": 354,
-    "latency_ms": 1527,
-    "cost_usd": 0.00114,
+    "input_tokens": 891,
+    "output_tokens": 315,
+    "latency_ms": 1795,
+    "cost_usd": 0.001055,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 3369,
-  "total_cost_usd": 0.001555,
+  "total_latency_ms": 3816,
+  "total_cost_usd": 0.001572,
   "error": null
  },
  {
@@ -711,9 +845,9 @@
    "requires_human_action": true,
    "language": "en",
    "issues": [
-    "Concept doubt regarding why torque is defined as r cross F instead of F cross r"
+    "Conceptual doubt about the definition of torque as r x F"
    ],
-   "search_query": "torque definition cross product order"
+   "search_query": "definition of torque cross product direction"
   },
   "passages": [
    {
@@ -736,32 +870,25 @@
     "title": "Doubt Support > Doubts sent to the support team",
     "text": "The customer support team does not solve academic questions. Academic doubts received by support are forwarded to the subject mentor team, and the student is guided to use the Doubts section for faster answers.",
     "score": 2.484
-   },
-   {
-    "id": "study_material#tracking-an-order",
-    "doc": "study_material",
-    "title": "Books and Study Material > Tracking an order",
-    "text": "A tracking link is sent by SMS and email once the books are dispatched. The tracking link is also available under Profile > My Orders.",
-    "score": 2.26
    }
   ],
   "draft": {
-   "reply": "Hello! Academic doubts received by support are forwarded to the subject mentor team [1]. Academic doubts about a concept, question or solution should be asked through the \"Ask Doubt\" button below any lecture or in the Doubts section of the batch [2]. Your case has been passed to the right team since this needs a staff member to answer an academic question. Faculty and subject mentors reply to doubts within 24 hours [3].",
+   "reply": "Hello! While our support team does not solve academic questions directly, we have forwarded your doubt about torque to our subject mentor team [3]. For faster answers to your academic questions in the future, please use the Doubts section in your batch or the Ask Doubt button below any lecture [1]. Faculty and subject mentors will reply to your doubt within 24 hours [2].",
    "citations": [
     {
      "marker": 1,
-     "passage_id": "doubt_support#doubts-sent-to-the-support-team",
-     "quote": "Academic doubts received by support are forwarded to the subject mentor team, and the student is guided to use the Doubts section for faster answers."
-    },
-    {
-     "marker": 2,
      "passage_id": "doubt_support#how-to-ask-an-academic-doubt",
      "quote": "Academic doubts about a concept, question or solution should be asked through the \"Ask Doubt\" button below any lecture or in the Doubts section of the batch."
     },
     {
-     "marker": 3,
+     "marker": 2,
      "passage_id": "doubt_support#doubt-response-time",
      "quote": "Faculty and subject mentors reply to doubts within 24 hours."
+    },
+    {
+     "marker": 3,
+     "passage_id": "doubt_support#doubts-sent-to-the-support-team",
+     "quote": "Academic doubts received by support are forwarded to the subject mentor team, and the student is guided to use the Doubts section for faster answers."
     }
    ],
    "kb_sufficient": true
@@ -769,22 +896,22 @@
   "citation_checks": [
    {
     "marker": 1,
-    "passage_id": "doubt_support#doubts-sent-to-the-support-team",
-    "quote": "Academic doubts received by support are forwarded to the subject mentor team, and the student is guided to use the Doubts section for faster answers.",
-    "valid": true,
-    "reason": ""
-   },
-   {
-    "marker": 2,
     "passage_id": "doubt_support#how-to-ask-an-academic-doubt",
     "quote": "Academic doubts about a concept, question or solution should be asked through the \"Ask Doubt\" button below any lecture or in the Doubts section of the batch.",
     "valid": true,
     "reason": ""
    },
    {
-    "marker": 3,
+    "marker": 2,
     "passage_id": "doubt_support#doubt-response-time",
     "quote": "Faculty and subject mentors reply to doubts within 24 hours.",
+    "valid": true,
+    "reason": ""
+   },
+   {
+    "marker": 3,
+    "passage_id": "doubt_support#doubts-sent-to-the-support-team",
+    "quote": "Academic doubts received by support are forwarded to the subject mentor team, and the student is guided to use the Doubts section for faster answers.",
     "valid": true,
     "reason": ""
    }
@@ -802,23 +929,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 683,
-    "output_tokens": 109,
-    "latency_ms": 2167,
-    "cost_usd": 0.000477,
+    "output_tokens": 106,
+    "latency_ms": 1570,
+    "cost_usd": 0.00047,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 614,
-    "output_tokens": 314,
-    "latency_ms": 2956,
-    "cost_usd": 0.000969,
+    "input_tokens": 591,
+    "output_tokens": 303,
+    "latency_ms": 2167,
+    "cost_usd": 0.000935,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 5168,
-  "total_cost_usd": 0.001446,
+  "total_latency_ms": 3816,
+  "total_cost_usd": 0.001405,
   "error": null
  },
  {
@@ -835,14 +962,14 @@
     "technical",
     "payment"
    ],
-   "confidence": 0.9,
+   "confidence": 0.95,
    "sentiment": "calm",
    "at_risk": false,
    "requires_human_action": false,
    "language": "hinglish",
    "issues": [
-    "video buffering",
-    "GST invoice download"
+    "Video buffering issue",
+    "GST invoice request"
    ],
    "search_query": "video buffering troubleshooting and download GST invoice"
   },
@@ -862,6 +989,20 @@
     "score": 8.503
    },
    {
+    "id": "refund_policy#how-to-request-a-refund",
+    "doc": "refund_policy",
+    "title": "Refund Policy > How to request a refund",
+    "text": "Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID. Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
+    "score": 4.285
+   },
+   {
+    "id": "app_troubleshooting#reporting-a-bug",
+    "doc": "app_troubleshooting",
+    "title": "App and Technical Troubleshooting > Reporting a bug",
+    "text": "If none of the steps work, the student should share their phone model, Android or iOS version, app version and a screen recording of the issue with support so the Tech Support team can investigate.",
+    "score": 3.421
+   },
+   {
     "id": "offline_downloads#download-limits",
     "doc": "offline_downloads",
     "title": "Offline Downloads > Download limits",
@@ -869,30 +1010,25 @@
     "score": 3.257
    },
    {
-    "id": "offline_downloads#download-expiry",
-    "doc": "offline_downloads",
-    "title": "Offline Downloads > Download expiry",
-    "text": "Downloaded lectures stay available until the batch validity ends. They are also removed if the app is uninstalled or the student logs out.",
-    "score": 2.818
+    "id": "account_management#account-deletion",
+    "doc": "account_management",
+    "title": "Account Management > Account deletion",
+    "text": "Students can request account deletion under Profile > Settings > Delete Account. The account and its data are permanently deleted after 30 days, and purchased batches cannot be restored after deletion.",
+    "score": 2.484
    }
   ],
   "draft": {
-   "reply": "Hello! Arre dost, no need to worry about the video buffering and GST invoice issues, mil kar solve kar lenge. If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version [1]. Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues [2]. Also, the GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice [3]. Let me know if you need any more help!",
+   "reply": "Hello! Arre dost, no need to worry about your video lagging and invoice needs. You can easily download your GST invoice directly by going to Profile, then My Purchases, and selecting Download Invoice [1]. Plus, all batch prices in the app already include GST [1]. To fix the video buffering, try lowering the video quality in the player settings, moving to a stable Wi-Fi network, updating your app, or clearing the app cache through your phone settings [2]. The GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice. [1] If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version. [2]",
    "citations": [
     {
      "marker": 1,
-     "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-     "quote": "If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version."
+     "passage_id": "payment_issues#invoices",
+     "quote": "The GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice."
     },
     {
      "marker": 2,
      "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-     "quote": "Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues."
-    },
-    {
-     "marker": 3,
-     "passage_id": "payment_issues#invoices",
-     "quote": "The GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice."
+     "quote": "If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version."
     }
    ],
    "kb_sufficient": true
@@ -900,22 +1036,15 @@
   "citation_checks": [
    {
     "marker": 1,
-    "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-    "quote": "If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version.",
+    "passage_id": "payment_issues#invoices",
+    "quote": "The GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice.",
     "valid": true,
     "reason": ""
    },
    {
     "marker": 2,
     "passage_id": "app_troubleshooting#videos-buffering-or-not-playing",
-    "quote": "Clearing the app cache from phone Settings > Apps > EduPrime > Storage > Clear Cache also fixes most playback issues.",
-    "valid": true,
-    "reason": ""
-   },
-   {
-    "marker": 3,
-    "passage_id": "payment_issues#invoices",
-    "quote": "The GST invoice for every purchase can be downloaded from Profile > My Purchases > Download Invoice.",
+    "quote": "If lectures keep buffering, the student should lower the video quality from the player settings, switch to a stable Wi-Fi network, and update the app to the latest version.",
     "valid": true,
     "reason": ""
    }
@@ -932,23 +1061,23 @@
     "step": "classify",
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 680,
-    "output_tokens": 73,
-    "latency_ms": 1377,
-    "cost_usd": 0.000387,
+    "output_tokens": 110,
+    "latency_ms": 1658,
+    "cost_usd": 0.000479,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 576,
-    "output_tokens": 346,
-    "latency_ms": 1757,
-    "cost_usd": 0.001038,
+    "input_tokens": 786,
+    "output_tokens": 314,
+    "latency_ms": 2327,
+    "cost_usd": 0.001021,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 3171,
-  "total_cost_usd": 0.001425,
+  "total_latency_ms": 4074,
+  "total_cost_usd": 0.0015,
   "error": null
  },
  {
@@ -979,7 +1108,7 @@
    ]
   },
   "llm_calls": [],
-  "total_latency_ms": 21,
+  "total_latency_ms": 40,
   "total_cost_usd": 0.0,
   "error": null
  },
@@ -1011,7 +1140,7 @@
    ]
   },
   "llm_calls": [],
-  "total_latency_ms": 20,
+  "total_latency_ms": 40,
   "total_cost_usd": 0.0,
   "error": null
  },
@@ -1038,19 +1167,19 @@
    "requires_human_action": true,
    "language": "hinglish",
    "issues": [
-    "Batch access not provided for one week",
-    "Demand for refund",
-    "Threat of consumer forum complaint"
+    "batch access not provided after 1 week",
+    "demand for refund",
+    "threat of consumer forum complaint"
    ],
-   "search_query": "missing batch access after payment and refund request"
+   "search_query": "missing batch access after payment refund policy"
   },
   "passages": [
    {
-    "id": "refund_policy#how-to-request-a-refund",
+    "id": "refund_policy#refund-timelines",
     "doc": "refund_policy",
-    "title": "Refund Policy > How to request a refund",
-    "text": "Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID. Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
-    "score": 7.957
+    "title": "Refund Policy > Refund timelines",
+    "text": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days. Refunds cannot be transferred to a different bank account, UPI ID or card than the one used for payment.",
+    "score": 7.017
    },
    {
     "id": "batch_access#batch-not-visible-after-purchase",
@@ -1064,7 +1193,7 @@
     "doc": "refund_policy",
     "title": "Refund Policy > Eligibility for a full refund",
     "text": "A full refund is available if the request is raised within 7 days of purchase and the student has watched fewer than 3 hours of lectures in the batch. Requests raised after 7 days from the date of purchase are not eligible for a refund, except for duplicate payments or a confirmed technical failure on EduPrime's side.",
-    "score": 6.592
+    "score": 6.189
    },
    {
     "id": "batch_access#changing-to-a-different-batch",
@@ -1074,18 +1203,18 @@
     "score": 5.4
    },
    {
-    "id": "batch_access#validity-extension",
-    "doc": "batch_access",
-    "title": "Batch Access > Validity extension",
-    "text": "A one-time validity extension of 3 months can be purchased for Rs 499 from the batch page, up to 30 days after the batch expires.",
-    "score": 5.387
-   },
-   {
     "id": "batch_access#joining-a-batch-that-has-already-started",
     "doc": "batch_access",
     "title": "Batch Access > Joining a batch that has already started",
     "text": "Students who join a batch after it has started get access to all recorded lectures from the beginning of the batch, so no content is missed.",
-    "score": 3.78
+    "score": 4.894
+   },
+   {
+    "id": "batch_access#activation-after-purchase",
+    "doc": "batch_access",
+    "title": "Batch Access > Activation after purchase",
+    "text": "A batch is usually activated instantly after a successful payment, and in rare cases it can take up to 2 hours. The batch appears under My Batches on the app and the website.",
+    "score": 4.278
    },
    {
     "id": "support_policy#complaints-and-grievances",
@@ -1095,30 +1224,30 @@
     "score": 3.675
    },
    {
-    "id": "refund_policy#refund-timelines",
+    "id": "refund_policy#how-to-request-a-refund",
     "doc": "refund_policy",
-    "title": "Refund Policy > Refund timelines",
-    "text": "Once a refund is approved, the amount is credited to the original payment method within 5 to 7 working days. Refunds cannot be transferred to a different bank account, UPI ID or card than the one used for payment.",
-    "score": 3.249
+    "title": "Refund Policy > How to request a refund",
+    "text": "Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID. Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
+    "score": 3.671
    }
   ],
   "draft": {
-   "reply": "Namaste! Don't worry, we are here to help you. If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID [1]. Also, every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own [2]. Your case has been passed to the right team for both batch access and your refund request. Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID [3].",
+   "reply": "Hello dost! We are here to help you get this sorted out. First, please try logging out and logging back in using the exact same mobile number you used for your purchase [2]. Usually, batch activation happens instantly or within 2 hours, but if it is still missing after that, our support team needs to check the details [2]. Also, regarding your refund and access concerns, please note that the support assistant cannot approve refunds on its own and every refund request is reviewed and approved by the Billing team [8]. We have passed your case to the right team so they can look into your batch access and refund request right away.",
    "citations": [
     {
      "marker": 1,
      "passage_id": "batch_access#batch-not-visible-after-purchase",
-     "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID."
+     "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase."
     },
     {
      "marker": 2,
-     "passage_id": "refund_policy#how-to-request-a-refund",
-     "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own."
+     "passage_id": "batch_access#batch-not-visible-after-purchase",
+     "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID."
     },
     {
      "marker": 3,
      "passage_id": "refund_policy#how-to-request-a-refund",
-     "quote": "Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID."
+     "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own."
     }
    ],
    "kb_sufficient": true
@@ -1127,23 +1256,30 @@
    {
     "marker": 1,
     "passage_id": "batch_access#batch-not-visible-after-purchase",
-    "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID.",
+    "quote": "If a purchased batch is not visible, the student should first log out and log back in, and make sure they are logged in with the same mobile number used for the purchase.",
     "valid": true,
     "reason": ""
    },
    {
     "marker": 2,
-    "passage_id": "refund_policy#how-to-request-a-refund",
-    "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
+    "passage_id": "batch_access#batch-not-visible-after-purchase",
+    "quote": "If the batch is still missing after 2 hours of a successful payment, the case needs to be checked by the support team using the order ID.",
     "valid": true,
     "reason": ""
    },
    {
     "marker": 3,
     "passage_id": "refund_policy#how-to-request-a-refund",
-    "quote": "Students can request a refund from the app under Profile > My Purchases > Request Refund, or by writing to support with their registered mobile number and order ID.",
+    "quote": "Every refund request is reviewed and approved by the Billing team; the support assistant cannot approve refunds on its own.",
     "valid": true,
     "reason": ""
+   },
+   {
+    "marker": 8,
+    "passage_id": "",
+    "quote": "",
+    "valid": false,
+    "reason": "marker in reply has no citation"
    }
   ],
   "decision": {
@@ -1153,7 +1289,8 @@
     "pre-check flag: legal_threat",
     "student is angry",
     "student is at risk of churning",
-    "needs a staff member to act in internal systems"
+    "needs a staff member to act in internal systems",
+    "1 citation(s) failed verification"
    ]
   },
   "llm_calls": [
@@ -1162,22 +1299,22 @@
     "model": "gemini-3.5-flash-lite",
     "input_tokens": 694,
     "output_tokens": 130,
-    "latency_ms": 1337,
+    "latency_ms": 1479,
     "cost_usd": 0.000533,
     "fallback_used": false
    },
    {
     "step": "draft",
     "model": "gemini-3.5-flash-lite",
-    "input_tokens": 1001,
-    "output_tokens": 360,
-    "latency_ms": 1689,
-    "cost_usd": 0.0012,
+    "input_tokens": 1047,
+    "output_tokens": 369,
+    "latency_ms": 2031,
+    "cost_usd": 0.001237,
     "fallback_used": false
    }
   ],
-  "total_latency_ms": 3068,
-  "total_cost_usd": 0.001733,
+  "total_latency_ms": 3611,
+  "total_cost_usd": 0.00177,
   "error": null
  }
 ]
