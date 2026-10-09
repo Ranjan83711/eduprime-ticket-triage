@@ -18,13 +18,19 @@ TIMEOUT_S = 30
 
 
 def _gemini(model: str) -> ChatGoogleGenerativeAI:
-    # thinking_budget=0: these are short, well-specified tasks; thinking adds latency and tokens
-    # without measurably helping. max_retries is low because the Groq fallback is faster than waiting.
-    return ChatGoogleGenerativeAI(model=model, temperature=0, max_retries=1, timeout=TIMEOUT_S, thinking_budget=0)
+    # Minimal thinking: these are short, well-specified tasks; thinking added ~265 reasoning tokens and
+    # ~1.5s per call without changing the output. Gemini 3 rejects thinking_budget=0, so use thinking_level.
+    # Flash-Lite uses fixed sampling and warns if temperature is passed, so only set it for other models.
+    # max_retries is low because the Groq fallback is faster than waiting out a rate limit.
+    sampling = {} if "lite" in model else {"temperature": 0}
+    return ChatGoogleGenerativeAI(model=model, max_retries=1, timeout=TIMEOUT_S,
+                                  thinking_config={"thinking_level": "minimal"}, **sampling)
 
 
 def _groq() -> ChatGroq:
-    return ChatGroq(model_name=FALLBACK_MODEL, temperature=0, max_retries=1, request_timeout=TIMEOUT_S)
+    # gpt-oss is a reasoning model; low effort keeps latency and tokens down for these simple tasks.
+    return ChatGroq(model_name=FALLBACK_MODEL, temperature=0, max_retries=1, request_timeout=TIMEOUT_S,
+                    reasoning_effort="low")
 
 
 @lru_cache(maxsize=None)
@@ -37,7 +43,7 @@ def structured_chain(role: str, schema: type[BaseModel]):
 
 
 def _cost(model: str, inp: int, out: int) -> float:
-    for name, (pin, pout) in MODEL_PRICES.items():
+    for name, (pin, pout) in sorted(MODEL_PRICES.items(), key=lambda kv: -len(kv[0])):
         if model.startswith(name):
             return (inp * pin + out * pout) / 1_000_000
     return 0.0
