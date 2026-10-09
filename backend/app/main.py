@@ -4,14 +4,15 @@ import json
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
+from fastapi.responses import PlainTextResponse
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db, email_channel, inbound, whatsapp_channel
+from . import db, email_channel, inbound, meta_whatsapp, whatsapp_channel
 from .config import (
     AUTO_REPLY_CONFIDENCE, BACKEND_DIR, CLASSIFIER_MODEL, DRAFTER_MODEL, FALLBACK_MODEL, ROOT_DIR,
     SENIOR_SUPPORT_EMAIL,
@@ -32,6 +33,7 @@ async def lifespan(app: FastAPI):
     get_kb()
     email_channel.start_poller(lambda item: inbound.process_incoming("email", item))
     whatsapp_channel.init_status()
+    meta_whatsapp.init_status()
     yield
 
 
@@ -52,7 +54,7 @@ def health():
         "auto_reply_threshold": AUTO_REPLY_CONFIDENCE,
         "kb_passages": len(get_kb().passages),
         "channels": {"email": {**email_channel.status, "senior_alerts_to": SENIOR_SUPPORT_EMAIL or None},
-                     "whatsapp": whatsapp_channel.status},
+                     "whatsapp": whatsapp_channel.status, "whatsapp_meta": meta_whatsapp.status},
     }
 
 
@@ -116,6 +118,36 @@ async def whatsapp_webhook(request: Request):
             pass
         reply = slot.close() or HOLDING_WHATSAPP
     return Response(content=whatsapp_channel.twiml(reply), media_type="text/xml")
+
+
+@app.get("/api/whatsapp/meta-webhook", include_in_schema=False)
+def meta_webhook_verify(request: Request):
+    """Meta's one-time handshake when the webhook URL is saved in the app dashboard."""
+    q = request.query_params
+    challenge = meta_whatsapp.verify_subscription(q.get("hub.mode"), q.get("hub.verify_token"), q.get("hub.challenge"))
+    if challenge is None:
+        raise HTTPException(403, "verification failed")
+    return PlainTextResponse(challenge)
+
+
+@app.post("/api/whatsapp/meta-webhook", include_in_schema=False)
+async def meta_webhook(request: Request, background: BackgroundTasks):
+    """Meta posts each incoming WhatsApp message here, signed with the app secret."""
+    if not meta_whatsapp.enabled():
+        raise HTTPException(404, "Meta WhatsApp not configured")
+    raw = await request.body()
+    if not meta_whatsapp.valid_signature(raw, request.headers.get("x-hub-signature-256", "")):
+        raise HTTPException(403, "invalid signature")
+    try:
+        payload = json.loads(raw)
+    except ValueError:
+        raise HTTPException(400, "invalid JSON")
+    for item in meta_whatsapp.parse_webhook(payload):
+        if not meta_whatsapp.is_duplicate(item["message_id"] or ""):
+            meta_whatsapp.status["received"] += 1
+            # Meta only needs a quick 200; the reply goes out through the Graph API afterwards.
+            background.add_task(inbound.process_incoming, "whatsapp", item)
+    return {"status": "ok"}
 
 
 @app.get("/api/kb")

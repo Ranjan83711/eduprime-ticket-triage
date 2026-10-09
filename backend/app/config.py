@@ -58,5 +58,11 @@ GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN", "").strip()
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
 TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886").strip()
+# WhatsApp channel via Meta's WhatsApp Cloud API (preferred when configured).
+META_WA_TOKEN = os.getenv("META_WA_TOKEN", "").strip()
+META_WA_PHONE_NUMBER_ID = os.getenv("META_WA_PHONE_NUMBER_ID", "").strip()
+META_APP_SECRET = os.getenv("META_APP_SECRET", "").strip()
+META_WA_VERIFY_TOKEN = os.getenv("META_WA_VERIFY_TOKEN", "").strip()  # any string; must match Meta's webhook setting
+META_GRAPH_VERSION = os.getenv("META_GRAPH_VERSION", "v23.0").strip()
 # Where "a human is needed" alerts go.
 SENIOR_SUPPORT_EMAIL = os.getenv("SENIOR_SUPPORT_EMAIL", "").strip()

@@ -8,7 +8,7 @@ import logging
 import re
 import threading
 
-from . import db, email_channel, whatsapp_channel
+from . import db, email_channel, meta_whatsapp, whatsapp_channel
 from .config import SENIOR_SUPPORT_EMAIL
 from .graph import SAFETY_REPLY
 from .triage import triage
@@ -45,6 +45,8 @@ def _send(channel: str, meta: dict, body: str) -> None:
     if channel == "email":
         email_channel.send_email(meta["contact"], meta.get("subject", "Your EduPrime query"), body,
                                  in_reply_to=meta.get("message_id"), references=meta.get("references"))
+    elif channel == "whatsapp" and meta.get("provider") == "meta":
+        meta_whatsapp.send_text(meta["contact"], body)
     elif channel == "whatsapp":
         whatsapp_channel.send_whatsapp(meta["contact"], body, from_number=meta.get("our_number"))
     else:
