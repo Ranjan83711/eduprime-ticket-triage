@@ -90,7 +90,7 @@ Tickets don't have to be pasted in: the app watches a real Gmail support inbox (
 - Every outbound message is logged on the ticket with its delivery status. A failed send is recorded and visible, never silently dropped.
 - The Inbox refreshes live every 5 s and marks new tickets.
 
-Setup: a dedicated Gmail account with 2-Step Verification and an App Password, then `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD` and `SENIOR_SUPPORT_EMAIL` in `.env`. Polling needs no public URL. **Run only one instance with these set**, otherwise each email gets answered twice.
+Setup: a dedicated Gmail account with 2-Step Verification and an App Password, then `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD` and `SENIOR_SUPPORT_EMAIL` in `.env`. Polling needs no public URL. **Sending:** SMTP by default; set `GMAIL_CLIENT_ID` / `GMAIL_CLIENT_SECRET` (a Google Cloud Desktop OAuth client) and run `python -m scripts.gmail_auth` once to send through the **Gmail API over HTTPS** instead. That's needed on Render's free tier, which blocks outbound SMTP: the first live test failed with `Network is unreachable`, the app recorded it as **send failed** and put the ticket in front of a human instead of showing "auto-replied". The OAuth scope is `gmail.send` only. **Run only one instance with these set**, otherwise each email gets answered twice.
 
 ---
 
