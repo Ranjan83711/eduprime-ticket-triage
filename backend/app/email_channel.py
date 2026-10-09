@@ -3,6 +3,7 @@
 Needs EMAIL_ADDRESS and EMAIL_APP_PASSWORD (a Gmail App Password, not the account password).
 Polling needs no public URL, so this works on a laptop as well as when deployed.
 """
+import base64
 import email
 import html
 import imaplib
@@ -15,8 +16,11 @@ from email.message import EmailMessage
 from email.policy import default as default_policy
 from email.utils import make_msgid, parseaddr
 
+import httpx
+
 from .config import (
-    EMAIL_ADDRESS, EMAIL_APP_PASSWORD, EMAIL_POLL_SECONDS, IMAP_HOST, SMTP_HOST, SMTP_PORT,
+    EMAIL_ADDRESS, EMAIL_APP_PASSWORD, EMAIL_POLL_SECONDS, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET,
+    GMAIL_REFRESH_TOKEN, IMAP_HOST, SMTP_HOST, SMTP_PORT,
 )
 
 log = logging.getLogger("email_channel")
@@ -99,6 +103,43 @@ def fetch_unseen() -> list[dict]:
     return out
 
 
+_token = {"value": None, "expires": 0.0}
+
+
+def gmail_api_enabled() -> bool:
+    return bool(GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET and GMAIL_REFRESH_TOKEN)
+
+
+def _access_token() -> str:
+    """Exchange the long-lived refresh token for a short-lived access token (cached until near expiry)."""
+    if _token["value"] and time.time() < _token["expires"] - 60:
+        return _token["value"]
+    r = httpx.post("https://oauth2.googleapis.com/token", timeout=20, data={
+        "client_id": GMAIL_CLIENT_ID, "client_secret": GMAIL_CLIENT_SECRET,
+        "refresh_token": GMAIL_REFRESH_TOKEN, "grant_type": "refresh_token",
+    })
+    if r.status_code != 200:
+        raise RuntimeError(f"Gmail token refresh failed: {r.status_code} {r.text[:200]}")
+    data = r.json()
+    _token.update(value=data["access_token"], expires=time.time() + data.get("expires_in", 3600))
+    return _token["value"]
+
+
+def _transmit(msg: EmailMessage) -> None:
+    """Send via the Gmail API over HTTPS when configured (works on hosts that block SMTP ports,
+    like Render's free tier), otherwise via SMTP."""
+    if gmail_api_enabled():
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        r = httpx.post("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", timeout=30,
+                       headers={"Authorization": f"Bearer {_access_token()}"}, json={"raw": raw})
+        if r.status_code >= 300:
+            raise RuntimeError(f"Gmail API send failed: {r.status_code} {r.text[:200]}")
+        return
+    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_APP_PASSWORD)
+        smtp.send_message(msg)
+
+
 def send_email(to: str, subject: str, body: str, in_reply_to: str | None = None, references: str | None = None) -> None:
     msg = EmailMessage()
     msg["From"] = f"EduPrime Support <{EMAIL_ADDRESS}>"
@@ -110,9 +151,7 @@ def send_email(to: str, subject: str, body: str, in_reply_to: str | None = None,
         msg["In-Reply-To"] = in_reply_to
         msg["References"] = f"{references} {in_reply_to}".strip() if references else in_reply_to
     msg.set_content(body)
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_APP_PASSWORD)
-        smtp.send_message(msg)
+    _transmit(msg)
 
 
 def send_alert(to: str, subject: str, body: str) -> None:
@@ -123,9 +162,7 @@ def send_alert(to: str, subject: str, body: str) -> None:
     msg["Subject"] = subject
     msg["Auto-Submitted"] = "auto-generated"
     msg.set_content(body)
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_APP_PASSWORD)
-        smtp.send_message(msg)
+    _transmit(msg)
 
 
 def _poll_forever(handle) -> None:
@@ -145,6 +182,6 @@ def _poll_forever(handle) -> None:
 def start_poller(handle) -> bool:
     if not enabled():
         return False
-    status.update(enabled=True, address=EMAIL_ADDRESS)
+    status.update(enabled=True, address=EMAIL_ADDRESS, sender="gmail_api" if gmail_api_enabled() else "smtp")
     threading.Thread(target=_poll_forever, args=(handle,), daemon=True, name="email-poller").start()
     return True

@@ -22,7 +22,11 @@ export const STATUS = {
   auto_sent: { label: 'Auto-replied', icon: '✓', fg: 'var(--good-text)', bg: 'var(--good-soft)' },
   pending_review: { label: 'Needs human', icon: '!', fg: 'var(--critical)', bg: 'var(--critical-soft)' },
   sent_by_agent: { label: 'Sent by agent', icon: '✓', fg: 'var(--ink-2)', bg: 'var(--surface-2)' },
+  send_failed: { label: 'Send failed', icon: '✗', fg: 'var(--critical)', bg: 'var(--critical-soft)' },
 }
+
+// Statuses where a person has to act.
+export const NEEDS_HUMAN = new Set(['pending_review', 'send_failed'])
 
 export const SENTIMENT = {
   calm: { label: 'Calm', fg: 'var(--ink-2)', bg: 'var(--surface-2)' },

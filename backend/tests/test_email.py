@@ -155,6 +155,51 @@ def test_failed_send_is_logged_not_raised(env, monkeypatch):
     t = inbound.process_incoming("email", ITEM)
     d = t["meta"]["deliveries"][0]
     assert d["ok"] is False and "SMTP down" in d["error"]
+    # The student got nothing, so it must not look "auto-replied": a human has to see it.
+    assert t["status"] == "send_failed"
+
+
+class FakeResponse:
+    def __init__(self, status, data):
+        self.status_code, self._data, self.text = status, data, str(data)
+
+    def json(self):
+        return self._data
+
+
+def test_gmail_api_used_when_configured(monkeypatch):
+    calls = []
+
+    def fake_post(url, **kw):
+        calls.append((url, kw))
+        if "oauth2" in url:
+            return FakeResponse(200, {"access_token": "tok", "expires_in": 3600})
+        return FakeResponse(200, {"id": "m1"})
+
+    for k, v in {"GMAIL_CLIENT_ID": "id", "GMAIL_CLIENT_SECRET": "s", "GMAIL_REFRESH_TOKEN": "r"}.items():
+        monkeypatch.setattr(email_channel, k, v)
+    monkeypatch.setattr(email_channel, "_token", {"value": None, "expires": 0.0})
+    monkeypatch.setattr(email_channel.httpx, "post", fake_post)
+    monkeypatch.setattr(email_channel.smtplib, "SMTP_SSL", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no SMTP")))
+
+    email_channel.send_email("riya@example.com", "Refund status", "Hello", in_reply_to="<abc@x>")
+    email_channel.send_email("riya@example.com", "Refund status", "Hello again")
+    urls = [u for u, _ in calls]
+    assert urls.count("https://oauth2.googleapis.com/token") == 1  # token cached for the second send
+    sent = [kw for u, kw in calls if "messages/send" in u]
+    assert len(sent) == 2 and sent[0]["headers"]["Authorization"] == "Bearer tok"
+    import base64
+    raw = base64.urlsafe_b64decode(sent[0]["json"]["raw"]).decode()
+    assert "In-Reply-To: <abc@x>" in raw and "Subject: Re: Refund status" in raw
+
+
+def test_gmail_api_error_is_raised(monkeypatch):
+    for k, v in {"GMAIL_CLIENT_ID": "id", "GMAIL_CLIENT_SECRET": "s", "GMAIL_REFRESH_TOKEN": "r"}.items():
+        monkeypatch.setattr(email_channel, k, v)
+    monkeypatch.setattr(email_channel, "_token", {"value": "tok", "expires": 9e12})
+    monkeypatch.setattr(email_channel.httpx, "post", lambda url, **kw: FakeResponse(403, {"error": "insufficient scope"}))
+    with pytest.raises(RuntimeError, match="Gmail API send failed: 403"):
+        email_channel.send_email("riya@example.com", "x", "y")
 
 
 def test_agent_reply_goes_to_student(env, monkeypatch):

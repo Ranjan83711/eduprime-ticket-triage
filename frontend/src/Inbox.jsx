@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from './api'
 import TicketDetail from './TicketDetail'
-import { CATEGORY_LABEL, Chip, SENTIMENT, Spinner, StatusChip, timeAgo } from './ui'
+import { CATEGORY_LABEL, Chip, NEEDS_HUMAN, SENTIMENT, Spinner, StatusChip, timeAgo } from './ui'
 
 const SAMPLES = [
   { label: 'Payment debited, no batch (Hinglish)', channel: 'whatsapp',
@@ -22,7 +22,7 @@ const POLL_MS = 5000
 
 const FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'pending_review', label: 'Needs human' },
+  { id: 'needs_human', label: 'Needs human' },
   { id: 'auto_sent', label: 'Auto-replied' },
 ]
 
@@ -91,9 +91,10 @@ export default function Inbox() {
   }
 
   const onUpdated = (t) => setTickets((list) => list.map((x) => (x.id === t.id ? t : x)))
-  const shown = tickets.filter((t) => filter === 'all' || t.status === filter)
+  const matches = (t, f) => f === 'all' || (f === 'needs_human' ? NEEDS_HUMAN.has(t.status) : t.status === f)
+  const shown = tickets.filter((t) => matches(t, filter))
   const selected = tickets.find((t) => t.id === selectedId)
-  const pending = tickets.filter((t) => t.status === 'pending_review').length
+  const pending = tickets.filter((t) => NEEDS_HUMAN.has(t.status)).length
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
@@ -167,7 +168,7 @@ export default function Inbox() {
             </div>
             <div className="grid grid-cols-3 gap-1 p-1 rounded-lg" style={{ background: 'var(--surface-2)' }} role="tablist">
               {FILTERS.map((f) => {
-                const count = f.id === 'all' ? tickets.length : tickets.filter((t) => t.status === f.id).length
+                const count = tickets.filter((t) => matches(t, f.id)).length
                 const active = filter === f.id
                 return (
                   <button

@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react'
 import { api } from './api'
-import { CATEGORY_LABEL, Chip, SENTIMENT, StatusChip, TEAM_LABEL } from './ui'
+import { CATEGORY_LABEL, Chip, NEEDS_HUMAN, SENTIMENT, StatusChip, TEAM_LABEL } from './ui'
 
 const DELIVERY_LABEL = {
   auto_reply: 'Auto-reply to student',
@@ -63,7 +63,8 @@ export default function TicketDetail({ ticket, onUpdated }) {
   const [err, setErr] = useState(null)
 
   const escalated = r.decision.decision === 'escalate'
-  const pending = ticket.status === 'pending_review'
+  const pending = NEEDS_HUMAN.has(ticket.status)
+  const sendFailed = ticket.status === 'send_failed'
 
   const send = async () => {
     setSending(true)
@@ -83,13 +84,15 @@ export default function TicketDetail({ ticket, onUpdated }) {
       <div
         className="rounded-xl p-4 border flex flex-col gap-2"
         style={{
-          background: escalated ? 'var(--critical-soft)' : 'var(--good-soft)',
+          background: escalated || sendFailed ? 'var(--critical-soft)' : 'var(--good-soft)',
           borderColor: 'var(--border)',
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-lg font-semibold" style={{ color: escalated ? 'var(--critical)' : 'var(--good-text)' }}>
-            {escalated ? `! Escalated to ${TEAM_LABEL[r.decision.team] || 'a human'}` : '✓ Safe to auto-reply'}
+          <span className="text-lg font-semibold" style={{ color: escalated || sendFailed ? 'var(--critical)' : 'var(--good-text)' }}>
+            {sendFailed
+              ? '✗ Reply could not be sent, needs a human'
+              : escalated ? `! Escalated to ${TEAM_LABEL[r.decision.team] || 'a human'}` : '✓ Safe to auto-reply'}
           </span>
           <StatusChip status={ticket.status} />
           <span className="ml-auto text-xs tabular" style={{ color: 'var(--ink-2)' }}>
@@ -97,6 +100,7 @@ export default function TicketDetail({ ticket, onUpdated }) {
           </span>
         </div>
         <ul className="text-sm list-disc pl-5" style={{ color: 'var(--ink-2)' }}>
+          {sendFailed && <li>delivery failed, see "Messages sent" below; review and resend</li>}
           {r.decision.reasons.map((x) => <li key={x}>{x}</li>)}
         </ul>
       </div>
@@ -165,7 +169,7 @@ export default function TicketDetail({ ticket, onUpdated }) {
 
       {draft && (
         <Section
-          title={escalated ? 'Draft for the agent' : 'Reply sent'}
+          title={pending ? 'Draft for the agent' : ticket.meta?.contact ? 'Reply sent' : 'Reply (manual ticket, not sent anywhere)'}
           right={checks.length > 0 && (
             <Chip
               fg={checks.every((c) => c.valid) ? 'var(--good-text)' : 'var(--critical)'}

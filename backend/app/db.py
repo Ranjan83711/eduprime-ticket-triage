@@ -26,7 +26,7 @@ class Ticket(Base):
     text: Mapped[str] = mapped_column(Text)
     decision: Mapped[str] = mapped_column(String(20))
     team: Mapped[str | None] = mapped_column(String(30), nullable=True)
-    # pending_review (escalated, waiting for a human) | auto_sent | sent_by_agent
+    # pending_review (escalated, waiting for a human) | auto_sent | sent_by_agent | send_failed (needs a human)
     status: Mapped[str] = mapped_column(String(20))
     final_reply: Mapped[str | None] = mapped_column(Text, nullable=True)
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
@@ -55,6 +55,14 @@ def init_db() -> None:
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE tickets ADD COLUMN meta JSON"))
     seed_if_empty()
+
+
+def set_status(ticket_id: int, status: str) -> None:
+    with Session(engine) as s:
+        t = s.get(Ticket, ticket_id)
+        if t is not None:
+            t.status = status
+            s.commit()
 
 
 def add_delivery(ticket_id: int, delivery: dict) -> None:

@@ -49,5 +49,10 @@ IMAP_HOST = os.getenv("IMAP_HOST", "imap.gmail.com")
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
 EMAIL_POLL_SECONDS = int(os.getenv("EMAIL_POLL_SECONDS", "30"))
+# Optional: send through the Gmail API (HTTPS) instead of SMTP. Needed on hosts that block SMTP
+# ports, such as Render's free tier. Get the refresh token once with `python -m scripts.gmail_auth`.
+GMAIL_CLIENT_ID = os.getenv("GMAIL_CLIENT_ID", "").strip()
+GMAIL_CLIENT_SECRET = os.getenv("GMAIL_CLIENT_SECRET", "").strip()
+GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN", "").strip()
 # Where "a human is needed" alerts go.
 SENIOR_SUPPORT_EMAIL = os.getenv("SENIOR_SUPPORT_EMAIL", "").strip()

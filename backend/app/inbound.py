@@ -48,7 +48,7 @@ def _send(channel: str, meta: dict, body: str) -> None:
         raise ValueError(f"no outbound sender for channel {channel!r}")
 
 
-def _deliver(ticket_id: int, channel: str, meta: dict, kind: str, body: str, to: str | None = None) -> None:
+def _deliver(ticket_id: int, channel: str, meta: dict, kind: str, body: str, to: str | None = None) -> bool:
     """Send and log the outcome on the ticket. A failed send is recorded, never raised: the ticket still exists."""
     to = to or meta.get("contact")
     try:
@@ -58,10 +58,12 @@ def _deliver(ticket_id: int, channel: str, meta: dict, kind: str, body: str, to:
             _send(channel, meta, body)
         db.add_delivery(ticket_id, {"kind": kind, "channel": "email" if kind == "senior_alert" else channel,
                                     "to": to, "ok": True})
+        return True
     except Exception as e:
         log.warning("delivery %s for ticket %s failed: %s", kind, ticket_id, e)
         db.add_delivery(ticket_id, {"kind": kind, "channel": channel, "to": to, "ok": False,
                                     "error": f"{type(e).__name__}: {e}"[:300]})
+        return False
 
 
 def senior_alert(ticket: dict) -> str:
@@ -90,7 +92,9 @@ def process_incoming(channel: str, item: dict) -> dict:
 
     if result.decision.decision == "auto_reply" and result.draft:
         body = student_text(result.draft.reply, saved.id, ticket["result"]["citation_checks"], ticket["result"]["passages"])
-        _deliver(saved.id, channel, meta, "auto_reply", body)
+        if not _deliver(saved.id, channel, meta, "auto_reply", body):
+            # The student got nothing: put it in front of a human instead of showing "auto-replied".
+            db.set_status(saved.id, "send_failed")
     else:
         self_harm = "self_harm" in result.precheck.flags
         _deliver(saved.id, channel, meta, "acknowledgement", acknowledgement(saved.id, result.decision.team, self_harm))
@@ -104,4 +108,5 @@ def send_agent_reply(ticket: dict, reply: str) -> None:
     meta = ticket.get("meta") or {}
     if ticket["channel"] in {"email"} and meta.get("contact"):
         body = student_text(reply, ticket["id"], ticket["result"]["citation_checks"], ticket["result"]["passages"])
-        _deliver(ticket["id"], ticket["channel"], meta, "agent_reply", body)
+        if not _deliver(ticket["id"], ticket["channel"], meta, "agent_reply", body):
+            db.set_status(ticket["id"], "send_failed")
