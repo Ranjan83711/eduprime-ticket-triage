@@ -54,5 +54,9 @@ EMAIL_POLL_SECONDS = int(os.getenv("EMAIL_POLL_SECONDS", "30"))
 GMAIL_CLIENT_ID = os.getenv("GMAIL_CLIENT_ID", "").strip()
 GMAIL_CLIENT_SECRET = os.getenv("GMAIL_CLIENT_SECRET", "").strip()
 GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN", "").strip()
+# WhatsApp channel via Twilio (sandbox for the demo). Disabled unless SID and token are set.
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886").strip()
 # Where "a human is needed" alerts go.
 SENIOR_SUPPORT_EMAIL = os.getenv("SENIOR_SUPPORT_EMAIL", "").strip()

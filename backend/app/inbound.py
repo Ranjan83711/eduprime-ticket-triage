@@ -1,13 +1,13 @@
 """What happens when a ticket arrives from a real channel, and when an agent answers one.
 
-Same flow for every channel (email now, WhatsApp next):
+Same flow for every channel (email and WhatsApp):
   triage -> save -> auto-reply on the same channel
                  or acknowledge the student + alert senior support, and wait for an agent.
 """
 import logging
 import re
 
-from . import db, email_channel
+from . import db, email_channel, whatsapp_channel
 from .config import SENIOR_SUPPORT_EMAIL
 from .graph import SAFETY_REPLY
 from .triage import triage
@@ -44,6 +44,8 @@ def _send(channel: str, meta: dict, body: str) -> None:
     if channel == "email":
         email_channel.send_email(meta["contact"], meta.get("subject", "Your EduPrime query"), body,
                                  in_reply_to=meta.get("message_id"), references=meta.get("references"))
+    elif channel == "whatsapp":
+        whatsapp_channel.send_whatsapp(meta["contact"], body)
     else:
         raise ValueError(f"no outbound sender for channel {channel!r}")
 
@@ -87,6 +89,7 @@ def process_incoming(channel: str, item: dict) -> dict:
     """Triage a message from a real channel and act on the decision."""
     meta = {k: v for k, v in item.items() if k != "text"}
     result = triage(item["text"], channel)
+    result.channel = channel  # the channel it actually arrived on decides where replies go
     saved = db.save_result(result, meta=meta)
     ticket = db.get_ticket(saved.id)
 
@@ -106,7 +109,7 @@ def process_incoming(channel: str, item: dict) -> dict:
 def send_agent_reply(ticket: dict, reply: str) -> None:
     """When an agent approves a reply in the Inbox, send it to the student on their channel."""
     meta = ticket.get("meta") or {}
-    if ticket["channel"] in {"email"} and meta.get("contact"):
+    if ticket["channel"] in {"email", "whatsapp"} and meta.get("contact"):
         body = student_text(reply, ticket["id"], ticket["result"]["citation_checks"], ticket["result"]["passages"])
         if not _deliver(ticket["id"], ticket["channel"], meta, "agent_reply", body):
             db.set_status(ticket["id"], "send_failed")
