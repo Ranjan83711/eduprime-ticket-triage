@@ -40,20 +40,7 @@ The **held-out set** was written after prompt tuning and never used to tune anyt
 
 ## How it works
 
-```mermaid
-flowchart LR
-    T[Student ticket] --> P[Pre-checks<br/>regex, no LLM]
-    P -- "critical flag<br/>(self-harm, prompt injection)" --> D
-    P --> C[Classify<br/>Gemini Flash-Lite]
-    C --> R[Retrieve<br/>BM25 over KB]
-    R --> W[Draft reply + citations<br/>Gemini Flash-Lite]
-    W --> V[Verify citations<br/>quote must exist in passage]
-    V --> D{Escalation rule<br/>plain Python}
-    D -- all checks pass --> A[Auto-reply]
-    D -- any check fails --> E[Escalate to team<br/>with draft + reasons]
-    C -. "429 / error" .-> G[Groq gpt-oss-120b<br/>fallback]
-    W -. "429 / error" .-> G
-```
+![Architecture: pre-checks, classify, retrieve, draft, verify citations, rule-based decision; auto-reply or escalate](docs/architecture.svg)
 
 The pipeline is a **LangGraph** state machine ([`backend/app/graph.py`](backend/app/graph.py)):
 
