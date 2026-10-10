@@ -4,9 +4,10 @@ An AI agent that reads incoming student support queries (email / WhatsApp / web 
 
 Built for the PW Central AI POD assignment, problem statement 6.
 
-- **Live demo:** https://eduprime-ticket-triage.onrender.com (Render free tier: if it was idle, the first load can take ~1 min)
-- **Azure deployment:** _pending Azure for Students approval_
-- **Demo video:** _Loom link_
+- **Live demo:** https://eduprime-ticket-triage.onrender.com
+- **Demo video (3 min):** https://drive.google.com/file/d/15Ie29V_iDQUyFUAaXEHGqtdend-mHn-i/view?usp=sharing
+- **Try it for real:** email `eduprime.support.demo@gmail.com` and get a reply in your thread within about a minute. WhatsApp runs on Meta's test number, which only reaches pre-verified numbers, so it's shown in the video.
+- **Stack:** Python 3.12 · FastAPI · LangGraph + LangChain · Gemini 3.5 Flash-Lite (Groq gpt-oss-120b fallback) · BM25 · SQLite · React + Tailwind + Recharts · Docker on Render · LangSmith · Gmail API · Meta WhatsApp Cloud API
 
 | Inbox (escalated ticket) | Evaluation dashboard |
 |---|---|
@@ -99,8 +100,11 @@ Students can also message a WhatsApp number ([`meta_whatsapp.py`](backend/app/me
 - Meta calls `/api/whatsapp/meta-webhook`. The one-time verify-token handshake is checked, and **every POST's `X-Hub-Signature-256` is verified with the app secret**, so forged requests are rejected (403, counted in `/api/health`).
 - The webhook answers Meta immediately and triages in the background; the reply is sent through the Graph API as normal text. That's allowed within 24 h of the student's message, so no templates are needed. Escalations get an acknowledgement and a senior alert, and agents' approved replies go out on WhatsApp too.
 - Duplicate deliveries (Meta retries) are ignored by message id; status updates and non-text messages are skipped.
-- Setup gotchas found while wiring it up: the app must be **subscribed to the WhatsApp Business Account** (`POST /{waba-id}/subscribed_apps`) **and** to the `messages` webhook field. Saving the callback URL alone delivers nothing.
-- Demo limits: Meta's free test number only messages up to 5 verified recipients, and the quick-start access token expires after 24 h (production uses a system-user token and a registered business number).
+- Auth uses a **System User access token that never expires** (scopes `whatsapp_business_messaging` and `whatsapp_business_management` only). The dashboard's "temporary" token lasts about 2 hours, which broke replies mid-demo the first time (`131005 Access denied`).
+- Setup gotchas found while wiring it up, each diagnosed through the Graph API:
+  - the app must be **subscribed to the WhatsApp Business Account** (`POST /{waba-id}/subscribed_apps`) **and** to the `messages` webhook field. Saving the callback URL alone delivers nothing.
+  - an app secret pasted twice silently fails every signature check, which is why rejected signatures are counted in `/api/health`.
+- Demo limit: Meta's free test number only messages up to 5 pre-verified recipients. Production would use a registered business number.
 - A Twilio implementation ([`whatsapp_channel.py`](backend/app/whatsapp_channel.py)) is kept as an alternative. On a Twilio *trial*, the newer WhatsApp sandbox rejects API-sent free-form messages (error 21654) and templates are paid-only, so the app replies inside the webhook response (TwiML) when triage finishes within Twilio's 15 s window.
 
 ---
@@ -143,12 +147,12 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 
 ## How it was tested
 
-- **75 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting, the API, and the email channel (parsing, signature/quote stripping, loop prevention, auto-reply, acknowledgement + senior alert, failed sends) against fake mail servers.
+- **75 unit tests** ([`backend/tests`](backend/tests)) with no API keys needed, run in CI on every push. They cover KB parsing and retrieval, every pre-check rule, citation verification (valid, fabricated quote, unknown passage, missing marker, punctuation tolerance), every escalation rule, the full LangGraph run with a fake LLM (happy path, critical flag skips the LLM, LLM failure escalates instead of crashing), rate-limit retry, cost accounting, the API, the email channel (parsing, signature/quote stripping, loop prevention, auto-reply, acknowledgement + senior alert, failed sends) against fake mail servers, and both WhatsApp integrations (Meta handshake, forged-signature rejection, retries de-duplicated, status updates ignored, agent replies; Twilio signature and TwiML replies). A test-wide guard blocks any real HTTP call, so tests can never touch real services even with live keys in `.env`.
 - **Labelled test set:** 64 tickets ([`backend/data/tickets/test_set.json`](backend/data/tickets/test_set.json)) covering all categories, 12 Hinglish, 8 multi-issue, 4 pre-sales (course / admissions), angry and legal-threat tickets, prompt injection, a safety case, and edge cases ("hello", "thank you"). Each has gold categories, decision and sentiment.
 - **Held-out set:** 17 more tickets written after tuning ([`holdout_set.json`](backend/data/tickets/holdout_set.json)).
 - **Eval runner** ([`backend/eval/run_eval.py`](backend/eval/run_eval.py)): category accuracy and F1, confusion matrix, escalation precision/recall, unsafe auto-replies, sentiment, citation validity, latency, cost and fallback rate. The threshold sweep reuses stored outputs, so it costs no extra LLM calls.
 - **LangSmith tracing:** every graph run (each node, prompt, tokens and latency) is traced to LangSmith when `LANGSMITH_API_KEY` is set.
-- **End-to-end checks:** the Docker image was run locally (health, UI, a real triage), and the fallback was tested by pointing the primary at a non-existent model.
+- **End-to-end checks:** the Docker image was run locally (health, UI, a real triage); the fallback was tested by pointing the primary at a non-existent model; and real emails and WhatsApp messages were sent to the live deployment, checking each ticket's delivery log.
 
 ---
 
@@ -162,11 +166,12 @@ Critical pre-check tickets cost $0 (no LLM call). Results are cached by (ticket,
 - **Regex pre-checks** catch common phrasings only. A rephrased injection or threat falls through to the LLM, which is still told to treat the ticket as data, and the reply can never trigger actions (there are no tools).
 - **Free-tier rate limits:** under a burst of live traffic, requests wait and retry, and if both providers stay exhausted the ticket is escalated with a holding reply, never dropped.
 - **Storage:** SQLite on a free host is wiped on restart; the inbox is re-seeded with sample tickets at startup. SQLAlchemy makes Postgres a connection-string change.
-- **Channels:** email (Gmail) and WhatsApp (Meta Cloud API test number) are integrated. Manually pasted tickets have no channel, so "Approve & send" only logs those replies. The WhatsApp test setup only reaches verified recipient numbers and its token lasts 24 h.
+- **Channels:** email (Gmail) and WhatsApp (Meta Cloud API test number) are integrated. Manually pasted tickets have no channel, so "Approve & send" only logs those replies. The WhatsApp test number only reaches pre-verified recipients.
+- **Free-tier Gmail on a brand-new account** got its App Password revoked once by Google's security checks; a real deployment would use a Google Workspace account or a service with a domain.
 
 ## What I'd do next
 
-- Move WhatsApp to a registered business number with a permanent system-user token.
+- Move WhatsApp to a registered business number (the code already uses a permanent system-user token).
 - Look up order and refund status from the payments system, so status questions can be auto-answered instead of escalated.
 - A calibrated confidence (self-consistency) and a larger, independently labelled test set.
 - An agent-feedback loop: log agent edits to drafts and use them as new eval cases.
@@ -204,8 +209,26 @@ docker run --env-file .env -p 7860:7860 eduprime-triage
 
 One Docker image runs everywhere. FastAPI serves both the API and the built React app on one port.
 
-- **Hugging Face Spaces (live demo):** [`.github/workflows/deploy-hf.yml`](.github/workflows/deploy-hf.yml) mirrors the repo to a Docker Space on every push. Set repo secret `HF_TOKEN` and variable `HF_SPACE`, and add the three API keys as Space secrets.
-- **Azure App Service (container):** [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) runs the tests, then builds and pushes `ghcr.io/ranjan83711/eduprime-ticket-triage:latest`. A Linux Web App for Containers pulls that image, with the API keys set as App Settings and `WEBSITES_PORT=7860`. Using GHCR instead of Azure Container Registry avoids the registry cost.
+- **Render (live demo):** a free Docker web service built straight from this repo, with automatic deploys on every push to `main`. **UptimeRobot** calls `/api/health` every 5 minutes so the free instance never sleeps (Render free sleeps after 15 min idle, which would also pause the email poller). Render's free tier blocks outbound SMTP, which is why email is sent through the Gmail API.
+- **CI:** [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) runs the unit tests and publishes the image to `ghcr.io/ranjan83711/eduprime-ticket-triage` on every push.
+- **Azure App Service (container):** the same GHCR image runs as a Linux Web App for Containers (settings as App Settings, `WEBSITES_PORT=7860`, `DB_PATH=/home/data/triage.db` for persistent storage). Pending Azure for Students approval at the time of writing.
+- **Hugging Face Spaces:** [`.github/workflows/deploy-hf.yml`](.github/workflows/deploy-hf.yml) can mirror the repo to a Docker Space (needs `HF_TOKEN` and `HF_SPACE`); not used, since Docker Spaces now need a paid plan.
+
+### Configuration
+
+All settings are environment variables (`.env` locally, the host's settings in production); see [`.env.example`](.env.example).
+
+| Variable | Needed for |
+|---|---|
+| `GOOGLE_API_KEY`, `GROQ_API_KEY` | LLM calls (Gemini primary, Groq fallback) |
+| `LANGSMITH_API_KEY`, `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` | Tracing (optional) |
+| `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD`, `SENIOR_SUPPORT_EMAIL` | Email channel: read the inbox, send senior alerts |
+| `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` | Send via the Gmail API instead of SMTP (run `python -m scripts.gmail_auth` once) |
+| `META_WA_TOKEN`, `META_WA_PHONE_NUMBER_ID`, `META_APP_SECRET`, `META_WA_VERIFY_TOKEN` | WhatsApp via Meta Cloud API |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | WhatsApp via Twilio (alternative) |
+| `CLASSIFIER_MODEL`, `DRAFTER_MODEL`, `FALLBACK_MODEL`, `AUTO_REPLY_CONFIDENCE`, `DB_PATH` | Optional overrides |
+
+Each channel switches on only when its settings are present, and **only one running instance should have the channel settings**, otherwise every message gets answered twice.
 
 ## Project structure
 
@@ -213,10 +236,14 @@ One Docker image runs everywhere. FastAPI serves both the API and the built Reac
 backend/
   app/            graph.py (LangGraph), llm.py (Gemini + Groq fallback), prechecks.py, kb.py (BM25),
                   citations.py, escalation.py, prompts.py, schemas.py, db.py, main.py (FastAPI)
+                  inbound.py (shared channel flow), email_channel.py (Gmail), meta_whatsapp.py (Meta),
+                  whatsapp_channel.py (Twilio)
+  scripts/        gmail_auth.py (one-time Gmail API sign-in)
   data/kb/        12 knowledge-base docs (markdown)
   data/tickets/   test_set.json (64), holdout_set.json (17)
   eval/           run_eval.py, report.json
   tests/          75 unit tests
 frontend/src/     Inbox, TicketDetail, EvalDashboard (React + Tailwind + Recharts)
+docs/             screenshots, demo-video-script.md
 Dockerfile        multi-stage: build React, then Python runtime
 ```
